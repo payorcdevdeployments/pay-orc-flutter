@@ -7,6 +7,7 @@ import 'package:flutter_pay_orc/src/helper/api_paths.dart';
 
 import 'models/pay_orc_payment_request.dart';
 import 'models/pay_orc_payment_response.dart';
+import 'models/pay_orc_payment_transaction_response.dart';
 
 class FlutterPayOrcClient {
   final Dio _dio;
@@ -48,6 +49,28 @@ class FlutterPayOrcClient {
       );
       if (response.statusCode == 200) {
         return PayOrcPaymentResponse.fromJson(response.data);
+      } else {
+        throw Exception('Failed to create order');
+      }
+    } on DioException catch (e) {
+      // Handle Dio-specific errors
+      if (e.response != null) {
+        throw Exception('Payment failed: ${e.response?.data}');
+      } else {
+        throw Exception('Network error: ${e.message}');
+      }
+    }
+  }
+
+  /// Api to fetch payment transaction
+  Future<PayOrcPaymentTransactionResponse> fetchPaymentTransaction(String orderId) async {
+    try {
+      final response = await _dio.get(
+        ApiPaths.URL_PAYMENT_TRANSACTION,
+        queryParameters: {'p_order_id': orderId},
+      );
+      if (response.statusCode == 200) {
+        return PayOrcPaymentTransactionResponse.fromJson(response.data);
       } else {
         throw Exception('Failed to create order');
       }

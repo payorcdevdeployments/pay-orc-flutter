@@ -7,6 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pay_orc/src/network/models/pay_orc_payment_response.dart';
+import 'package:flutter_pay_orc/src/network/models/pay_orc_payment_transaction_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'flutter_pay_orc_platform_interface.dart';
@@ -137,6 +138,20 @@ class FlutterPayOrc {
     try {
       final response = await _client.createPayment(request);
       configMemoryHolder.payOrcPaymentResponse = response;
+      configMemoryHolder.orderId = response.pOrderId.toString();
+      return response;
+    } catch (e) {
+      // Handle errors.
+      throw Exception('Error during payment creation: $e');
+    }
+  }
+
+  /// To fetch payment transaction
+  Future<PayOrcPaymentTransactionResponse> fetchPaymentTransaction(
+      {required String orderId}) async {
+    try {
+      final response = await _client.fetchPaymentTransaction(orderId);
+      configMemoryHolder.payOrcPaymentTransactionResponse = response;
       return response;
     } catch (e) {
       // Handle errors.

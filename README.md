@@ -136,3 +136,17 @@ Steps to follow:
             ),
         ),
     );
+
+## Step 5 : To fetch payment transaction information.
+
+    Future<PayOrcPaymentTransactionResponse> fetchPaymentTransaction(
+        {required String orderId}) async {
+        try {
+            final response = await _client.fetchPaymentTransaction(orderId);
+            configMemoryHolder.payOrcPaymentTransactionResponse = response;
+            return response;
+        } catch (e) {
+            // Handle errors.
+            throw Exception('Error during payment creation: $e');
+        }
+    }

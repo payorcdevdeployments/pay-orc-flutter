@@ -1,5 +1,5 @@
 
-import 'package:flutter_pay_orc/src/network/models/pay_orc_payment_response.dart';
+import 'package:flutter_pay_orc/flutter_pay_orc.dart';
 
 import 'flutter_pay_orc_environment.dart';
 
@@ -22,6 +22,9 @@ class ConfigMemoryHolder {
 
   /// The payment object ref.
   PayOrcPaymentResponse? payOrcPaymentResponse;
+
+  /// The payment object ref.
+  PayOrcPaymentTransactionResponse? payOrcPaymentTransactionResponse;
 
   ConfigMemoryHolder();
 }
