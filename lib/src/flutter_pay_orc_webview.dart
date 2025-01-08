@@ -66,45 +66,44 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          if (widget.paymentUrl.isEmpty)
-            Center(
-              child: Text("Invalid payment URL."),
-            )
-          else
-            InAppWebView(
-              key: webViewKey,
-              webViewEnvironment: webViewEnvironment,
-              initialUrlRequest:
-                  URLRequest(url: WebUri.uri(Uri.parse(widget.paymentUrl))),
-              initialUserScripts: UnmodifiableListView<UserScript>([]),
-              initialSettings: settings,
-              onWebViewCreated: (controller) async {
-                webViewController = controller;
-              },
-              onLoadStart: (controller, url) {
-                setState(() {
-                  isLoading = true; // Show loader when loading starts
-                });
-              },
-              shouldOverrideUrlLoading: (controller, navigationAction) async {
-                final url = navigationAction.request.url!;
-                if (url != null) {
-                  // Handle success or failure based on the URL
-                  if (url.toString().contains("success")) {
-                    final transactionId = url.queryParameters["transaction_id"];
-                    widget.onPaymentResult(true, transactionId);
-                    Navigator.pop(context);
-                    return NavigationActionPolicy.CANCEL;
-                  } else if (url.toString().contains("failure")) {
-                    widget.onPaymentResult(false, null);
-                    Navigator.pop(context);
-                    return NavigationActionPolicy.CANCEL;
-                  }
+    return Stack(
+      children: [
+        if (widget.paymentUrl.isEmpty)
+          Center(
+            child: Text("Invalid payment URL."),
+          )
+        else
+          InAppWebView(
+            key: webViewKey,
+            webViewEnvironment: webViewEnvironment,
+            initialUrlRequest:
+            URLRequest(url: WebUri.uri(Uri.parse(widget.paymentUrl))),
+            initialUserScripts: UnmodifiableListView<UserScript>([]),
+            initialSettings: settings,
+            onWebViewCreated: (controller) async {
+              webViewController = controller;
+            },
+            onLoadStart: (controller, url) {
+              setState(() {
+                isLoading = true; // Show loader when loading starts
+              });
+            },
+            shouldOverrideUrlLoading: (controller, navigationAction) async {
+              final url = navigationAction.request.url!;
+              if (url != null) {
+                // Handle success or failure based on the URL
+                if (url.toString().contains("success")) {
+                  final transactionId = url.queryParameters["transaction_id"];
+                  widget.onPaymentResult(true, transactionId);
+                  //Navigator.pop(context); // Need to check and use it based on navigator usage.
+                  return NavigationActionPolicy.CANCEL;
+                } else if (url.toString().contains("failure")) {
+                  widget.onPaymentResult(false, null);
+                  //Navigator.pop(context); // Need to check and use it based on navigator usage.
+                  return NavigationActionPolicy.CANCEL;
                 }
-                /*if (![
+              }
+              /*if (![
                 "http",
                 "https",
                 "file",
@@ -122,44 +121,43 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
                   return NavigationActionPolicy.CANCEL;
                 }
               }*/
-                return NavigationActionPolicy.ALLOW;
-              },
-              onLoadStop: (controller, url) async {
-                setState(() {
-                  isLoading = false; // Hide loader when loading stops
-                });
-                if (url != null) {
-                  // Optionally, handle the URL here as well
-                  if (url.toString().contains("success")) {
-                    final transactionId = url.queryParameters["transaction_id"];
-                    widget.onPaymentResult(true, transactionId);
-                    Navigator.pop(context);
-                  } else if (url.toString().contains("failure")) {
-                    widget.onPaymentResult(false, null);
-                    Navigator.pop(context);
-                  }
+              return NavigationActionPolicy.ALLOW;
+            },
+            onLoadStop: (controller, url) async {
+              setState(() {
+                isLoading = false; // Hide loader when loading stops
+              });
+              if (url != null) {
+                // Optionally, handle the URL here as well
+                if (url.toString().contains("success")) {
+                  final transactionId = url.queryParameters["transaction_id"];
+                  widget.onPaymentResult(true, transactionId);
+                  Navigator.pop(context);
+                } else if (url.toString().contains("failure")) {
+                  widget.onPaymentResult(false, null);
+                  Navigator.pop(context);
                 }
-              },
-              onReceivedError: (controller, request, error) {
-                debugPrint(error.description);
-              },
-              onProgressChanged: (controller, progress) {},
-              onUpdateVisitedHistory: (controller, url, isReload) {},
-              onConsoleMessage: (controller, consoleMessage) {
-                debugPrint(
-                    consoleMessage.message); // To capture JavaScript console logs
-              },
-              onReceivedServerTrustAuthRequest: (controller, challenge) async {
-                return ServerTrustAuthResponse(
-                    action: ServerTrustAuthResponseAction.PROCEED);
-              },
-            ),
-          if (isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-        ],
-      ),
+              }
+            },
+            onReceivedError: (controller, request, error) {
+              debugPrint(error.description);
+            },
+            onProgressChanged: (controller, progress) {},
+            onUpdateVisitedHistory: (controller, url, isReload) {},
+            onConsoleMessage: (controller, consoleMessage) {
+              debugPrint(
+                  consoleMessage.message); // To capture JavaScript console logs
+            },
+            onReceivedServerTrustAuthRequest: (controller, challenge) async {
+              return ServerTrustAuthResponse(
+                  action: ServerTrustAuthResponseAction.PROCEED);
+            },
+          ),
+        if (isLoading)
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
+      ],
     );
   }
 }

@@ -118,40 +118,26 @@ class FlutterPayOrc {
   }
 
   Widget startPayment({
-    required BuildContext context,
-    required double amount,
-    required String currency,
     required Function(bool success, String? transactionId) onPaymentResult,
   }) {
-    final paymentUrl = configMemoryHolder.paymentUrl;
-    /*final paymentUrl = instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;*/
-    return PayOrcWebView(
-      paymentUrl: paymentUrl!,
-      onPaymentResult: onPaymentResult,
-    );
+    final paymentUrl =
+        instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
+    return paymentUrl != null && paymentUrl.isNotEmpty
+        ? PayOrcWebView(
+            paymentUrl: paymentUrl,
+            onPaymentResult: onPaymentResult,
+          )
+        : Text('Payment URL is not available');
   }
 
   /// Api calls ///
-  Future<void> createPayment({
-    required BuildContext context,
-    required PayOrcPaymentRequest request,
-    required Function(bool success, String? transactionId) onPaymentResult,
-  }) async {
+  Future<PayOrcPaymentResponse> createPayment(
+      {required BuildContext context,
+      required PayOrcPaymentRequest request}) async {
     try {
       final response = await _client.createPayment(request);
       configMemoryHolder.payOrcPaymentResponse = response;
-      if (response != null) {
-        final paymentUrl = response?.iframeLink;
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) =>
-                PayOrcWebView(
-                  paymentUrl: paymentUrl!,
-                  onPaymentResult: onPaymentResult,
-                ),
-          ),
-        );
-      }
+      return response;
     } catch (e) {
       // Handle errors.
       throw Exception('Error during payment creation: $e');
