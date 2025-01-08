@@ -1,9 +1,8 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
-
 import 'package:flutter_pay_orc/src/helper/api_paths.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import 'models/pay_orc_payment_request.dart';
 import 'models/pay_orc_payment_response.dart';
@@ -19,8 +18,8 @@ class FlutterPayOrcClient {
       required String paymentBaseUrl})
       : _dio = Dio(BaseOptions(
             baseUrl: paymentBaseUrl,
-            connectTimeout: const Duration(seconds: 10),
-            receiveTimeout: const Duration(seconds: 10),
+            connectTimeout: const Duration(seconds: 60),
+            receiveTimeout: const Duration(seconds: 60),
             headers: {
               'merchant-key': merchantKey,
               'merchant-secret': merchantSecret,
@@ -34,7 +33,6 @@ class FlutterPayOrcClient {
       responseHeader: false,
       error: true,
       compact: true,
-      maxWidth: 90,
     ));
   }
 
@@ -63,7 +61,8 @@ class FlutterPayOrcClient {
   }
 
   /// Api to fetch payment transaction
-  Future<PayOrcPaymentTransactionResponse> fetchPaymentTransaction(String orderId) async {
+  Future<PayOrcPaymentTransactionResponse> fetchPaymentTransaction(
+      String orderId) async {
     try {
       final response = await _dio.get(
         ApiPaths.URL_PAYMENT_TRANSACTION,

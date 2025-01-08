@@ -13,8 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'flutter_pay_orc_platform_interface.dart';
 import 'flutter_pay_orc_webview.dart';
 import 'helper/config_memory_holder.dart';
-import 'helper/preference_helper.dart';
 import 'helper/flutter_pay_orc_environment.dart';
+import 'helper/preference_helper.dart';
 import 'network/flutter_pay_orc_client.dart';
 import 'network/models/pay_orc_payment_request.dart';
 
@@ -170,11 +170,13 @@ class FlutterPayOrc {
       configMemoryHolder.payOrcPaymentResponse = response;
       final paymentUrl =
           instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => PayOrcWebView(
-                paymentUrl: paymentUrl!,
-                onPaymentResult: onPaymentResult,
-              )));
+      if (context.mounted) {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => PayOrcWebView(
+                  paymentUrl: paymentUrl!,
+                  onPaymentResult: onPaymentResult,
+                )));
+      }
     } catch (e) {
       // Handle errors.
       throw Exception('Error during payment creation: $e');
