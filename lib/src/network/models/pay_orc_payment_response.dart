@@ -3,15 +3,25 @@ part 'pay_orc_payment_response.g.dart';
 
 @JsonSerializable()
 class PayOrcPaymentResponse {
+  @JsonKey(name: 'status')
   final String status;
+  @JsonKey(name: 'status_code')
   final String statusCode;
+  @JsonKey(name: 'message')
   final String message;
+  @JsonKey(name: 'p_order_id')
   final int pOrderId;
+  @JsonKey(name: 'm_order_id')
   final String mOrderId;
+  @JsonKey(name: 'p_request_id')
   final int pRequestId;
+  @JsonKey(name: 'order_creation_date')
   final String orderCreationDate;
+  @JsonKey(name: 'amount')
   final String amount;
+  @JsonKey(name: 'payment_link')
   final String paymentLink;
+  @JsonKey(name: 'iframe_link')
   final String iframeLink;
 
   PayOrcPaymentResponse({

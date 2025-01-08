@@ -1,13 +1,16 @@
 import 'package:json_annotation/json_annotation.dart';
+
 part 'pay_orc_payment_request.g.dart';
 
 @JsonSerializable()
 class PayOrcPaymentRequest {
+  @JsonKey(name: 'data')
   final Data data;
 
   PayOrcPaymentRequest({required this.data});
 
-  factory PayOrcPaymentRequest.fromJson(Map<String, dynamic> json) => _$PayOrcPaymentRequestFromJson(json);
+  factory PayOrcPaymentRequest.fromJson(Map<String, dynamic> json) =>
+      _$PayOrcPaymentRequestFromJson(json);
 
   Map<String, dynamic> toJson() => _$PayOrcPaymentRequestToJson(this);
 }
@@ -16,13 +19,21 @@ class PayOrcPaymentRequest {
 class Data {
   @JsonKey(name: 'class')
   final String className;
+  @JsonKey(name: 'action')
   final String action;
+  @JsonKey(name: 'capture_method')
   final String captureMethod;
+  @JsonKey(name: 'payment_token')
   final String paymentToken;
+  @JsonKey(name: 'order_details')
   final OrderDetails orderDetails;
+  @JsonKey(name: 'customer_details')
   final CustomerDetails customerDetails;
+  @JsonKey(name: 'billing_details')
   final BillingDetails billingDetails;
+  @JsonKey(name: 'shipping_details')
   final ShippingDetails shippingDetails;
+  @JsonKey(name: 'urls')
   final Urls urls;
 
   Data({
@@ -44,11 +55,17 @@ class Data {
 
 @JsonSerializable()
 class OrderDetails {
+  @JsonKey(name: 'm_order_id')
   final String mOrderId;
+  @JsonKey(name: 'amount')
   final String amount;
+  @JsonKey(name: 'convenience_fee')
   final String convenienceFee;
+  @JsonKey(name: 'quantity')
   final String quantity;
+  @JsonKey(name: 'currency')
   final String currency;
+  @JsonKey(name: 'description')
   final String description;
 
   OrderDetails({
@@ -68,6 +85,7 @@ class OrderDetails {
 
 @JsonSerializable()
 class CustomerDetails {
+  @JsonKey(name: 'm_customer_id')
   final String mCustomerId;
   final String name;
   final String email;
@@ -90,7 +108,9 @@ class CustomerDetails {
 
 @JsonSerializable()
 class BillingDetails {
+  @JsonKey(name: 'address_line1')
   final String addressLine1;
+  @JsonKey(name: 'address_line2')
   final String addressLine2;
   final String city;
   final String province;
@@ -114,18 +134,27 @@ class BillingDetails {
 
 @JsonSerializable()
 class ShippingDetails {
+  @JsonKey(name: 'shipping_name')
   final String shippingName;
+  @JsonKey(name: 'shipping_email')
   final String shippingEmail;
+  @JsonKey(name: 'shipping_code')
   final String shippingCode;
+  @JsonKey(name: 'shipping_mobile')
   final String shippingMobile;
+  @JsonKey(name: 'address_line1')
   final String addressLine1;
+  @JsonKey(name: 'address_line2')
   final String addressLine2;
   final String city;
   final String province;
   final String country;
   final String pin;
+  @JsonKey(name: 'location_pin')
   final String locationPin;
+  @JsonKey(name: 'shipping_currency')
   final String shippingCurrency;
+  @JsonKey(name: 'shipping_amount')
   final String shippingAmount;
 
   ShippingDetails({

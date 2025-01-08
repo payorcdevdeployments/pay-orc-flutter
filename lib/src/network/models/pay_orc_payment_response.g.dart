@@ -10,28 +10,28 @@ PayOrcPaymentResponse _$PayOrcPaymentResponseFromJson(
         Map<String, dynamic> json) =>
     PayOrcPaymentResponse(
       status: json['status'] as String,
-      statusCode: json['statusCode'] as String,
+      statusCode: json['status_code'] as String,
       message: json['message'] as String,
-      pOrderId: (json['pOrderId'] as num).toInt(),
-      mOrderId: json['mOrderId'] as String,
-      pRequestId: (json['pRequestId'] as num).toInt(),
-      orderCreationDate: json['orderCreationDate'] as String,
+      pOrderId: (json['p_order_id'] as num).toInt(),
+      mOrderId: json['m_order_id'] as String,
+      pRequestId: (json['p_request_id'] as num).toInt(),
+      orderCreationDate: json['order_creation_date'] as String,
       amount: json['amount'] as String,
-      paymentLink: json['paymentLink'] as String,
-      iframeLink: json['iframeLink'] as String,
+      paymentLink: json['payment_link'] as String,
+      iframeLink: json['iframe_link'] as String,
     );
 
 Map<String, dynamic> _$PayOrcPaymentResponseToJson(
         PayOrcPaymentResponse instance) =>
     <String, dynamic>{
       'status': instance.status,
-      'statusCode': instance.statusCode,
+      'status_code': instance.statusCode,
       'message': instance.message,
-      'pOrderId': instance.pOrderId,
-      'mOrderId': instance.mOrderId,
-      'pRequestId': instance.pRequestId,
-      'orderCreationDate': instance.orderCreationDate,
+      'p_order_id': instance.pOrderId,
+      'm_order_id': instance.mOrderId,
+      'p_request_id': instance.pRequestId,
+      'order_creation_date': instance.orderCreationDate,
       'amount': instance.amount,
-      'paymentLink': instance.paymentLink,
-      'iframeLink': instance.iframeLink,
+      'payment_link': instance.paymentLink,
+      'iframe_link': instance.iframeLink,
     };

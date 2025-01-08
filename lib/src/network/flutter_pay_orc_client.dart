@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
@@ -39,9 +41,10 @@ class FlutterPayOrcClient {
   Future<PayOrcPaymentResponse> createPayment(
       PayOrcPaymentRequest request) async {
     try {
+      Map requestData = request.toJson();
       final response = await _dio.post(
         ApiPaths.URL_CREATE_PAYMENT,
-        data: request.toJson(),
+        data: jsonEncode(requestData),
       );
       if (response.statusCode == 200) {
         return PayOrcPaymentResponse.fromJson(response.data);
