@@ -164,8 +164,10 @@ class FlutterPayOrc {
     required BuildContext context,
     required PayOrcPaymentRequest request,
     required Function(bool success, String? transactionId) onPaymentResult,
+    required Function(bool success) onLoadingResult,
   }) async {
     try {
+      onLoadingResult.call(true);
       final response = await _client.createPayment(request);
       configMemoryHolder.payOrcPaymentResponse = response;
       final paymentUrl =
@@ -180,6 +182,8 @@ class FlutterPayOrc {
     } catch (e) {
       // Handle errors.
       throw Exception('Error during payment creation: $e');
+    } finally {
+      onLoadingResult.call(false);
     }
   }
 }
