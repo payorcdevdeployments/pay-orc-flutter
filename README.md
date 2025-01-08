@@ -32,7 +32,19 @@ Steps to follow:
         runApp(const MyApp());
     }
 
-## Step 2 : To start the payment use step 2 or step 3 on app Scaffold for the payment webview and call back will return the needful information.
+## Step 2 : Implement create payment on stateful widget init state and load below widget based on api response..
+
+    Future<PayOrcPaymentResponse> createPayment(
+        {required PayOrcPaymentRequest request}) async {
+        try {
+            final response = await _client.createPayment(request);
+            configMemoryHolder.payOrcPaymentResponse = response;
+            return response;
+        } catch (e) {
+            // Handle errors.
+            throw Exception('Error during payment creation: $e');
+        }
+    }
 
 
     Widget startPayment({
@@ -48,18 +60,28 @@ Steps to follow:
         );
     }
 
-## Step 3 : To start the payment use step 2 or step 3 on app Scaffold for the payment webview and call back will return the needful information.
+## Step 3 : Implement createPaymentWithWidget on widget will auto push on view.
 
-    PayOrcWebView(
-        paymentUrl: FlutterPayOrc.instance.configMemoryHolder.paymentUrl!,
-        onPaymentResult: (success, transactionId) {
-            if (success) {
-                print('Payment successful. Transaction ID: $transactionId');
-            } else {
-                print('Payment failed.');
+    Future<void> createPaymentWithWidget({
+        required BuildContext context,
+        required PayOrcPaymentRequest request,
+        required Function(bool success, String? transactionId) onPaymentResult,
+        }) async {
+            try {
+                final response = await _client.createPayment(request);
+                configMemoryHolder.payOrcPaymentResponse = response;
+                final paymentUrl =
+                instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
+                Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => PayOrcWebView(
+                paymentUrl: paymentUrl!,
+                onPaymentResult: onPaymentResult,
+                )));
+            } catch (e) {
+                // Handle errors.
+                throw Exception('Error during payment creation: $e');
             }
-        },
-    );
+    }
 
 ## Step 4 : payment request object.
 

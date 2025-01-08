@@ -131,13 +131,35 @@ class FlutterPayOrc {
   }
 
   /// Api calls ///
+  /// To create payment
   Future<PayOrcPaymentResponse> createPayment(
-      {required BuildContext context,
-      required PayOrcPaymentRequest request}) async {
+      {required PayOrcPaymentRequest request}) async {
     try {
       final response = await _client.createPayment(request);
       configMemoryHolder.payOrcPaymentResponse = response;
       return response;
+    } catch (e) {
+      // Handle errors.
+      throw Exception('Error during payment creation: $e');
+    }
+  }
+
+  /// To create payment with widget
+  Future<void> createPaymentWithWidget({
+    required BuildContext context,
+    required PayOrcPaymentRequest request,
+    required Function(bool success, String? transactionId) onPaymentResult,
+  }) async {
+    try {
+      final response = await _client.createPayment(request);
+      configMemoryHolder.payOrcPaymentResponse = response;
+      final paymentUrl =
+          instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => PayOrcWebView(
+                paymentUrl: paymentUrl!,
+                onPaymentResult: onPaymentResult,
+              )));
     } catch (e) {
       // Handle errors.
       throw Exception('Error during payment creation: $e');
