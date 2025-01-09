@@ -33,7 +33,7 @@ Steps to follow:
     }
 
 ## Step 2 : Implement create payment on stateful widget init state and load below widget based on api response..
-    Method name on sdk:
+    **Method name on sdk:**
 
     Future<PayOrcPaymentResponse> createPayment(
         {required PayOrcPaymentRequest request}) async {
@@ -47,13 +47,13 @@ Steps to follow:
         }
     }
 
-    To call this method on app:
+    **To call this method on app:**
 
     final response = await FlutterPayOrc.instance.createPayment(
         request: createPayOrcPaymentRequest(),
       );
 
-    Method name on sdk:
+    **Method name on sdk:**
 
     Widget startPayment({
         required BuildContext context,
@@ -68,7 +68,7 @@ Steps to follow:
         );
     }
 
-    To call this method on app:
+    **To call this method on app:**
 
     FlutterPayOrc.instance.startPayment(
         onPaymentResult: (success, transactionId) {
@@ -89,7 +89,7 @@ Steps to follow:
 
 ## Step 3 : Implement createPaymentWithWidget on widget will auto push on view.
 
-    Method name on sdk:
+    **Method name on sdk:**
 
     Future<void> createPaymentWithWidget({
         required BuildContext context,
@@ -112,7 +112,7 @@ Steps to follow:
             }
     }
 
-    To call this method on app:
+    **To call this method on app:**
 
     await FlutterPayOrc.instance.createPaymentWithWidget(context: context, request: createPayOrcPaymentRequest(), onPaymentResult: (success, transactionId) {
       if (success) {
@@ -185,6 +185,8 @@ Steps to follow:
 
 ## Step 5 : To fetch payment transaction status use p_order_id from create payment response.
 
+    **Method name on sdk:**
+
     Future<PayOrcPaymentTransactionResponse> fetchPaymentTransaction(
         {required String orderId}) async {
         try {
@@ -197,14 +199,34 @@ Steps to follow:
         }
     }
 
+    **To call this method on app:**
+
+    FlutterPayOrc.instance.startPayment(
+        onPaymentResult: (success, transactionId) async {
+          if (success) {
+            await FlutterPayOrc.instance.fetchPaymentTransaction(orderId: FlutterPayOrc.instance.configMemoryHolder.payOrcPaymentResponse!.pOrderId.toString());
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text(
+                      'Payment successful. Transaction ID: $transactionId')),
+            );
+            Navigator.pop(context);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Payment failed.')),
+            );
+          }
+        },
+      )
+
 ## Step 6 : To clear data call following method.
-    Method name on sdk:
+    **Method name on sdk:**
     
     void clearData() {
         instance.configMemoryHolder = ConfigMemoryHolder();
         preferenceHelper.clear();
     }
     
-    To call this method on app:
+    **To call this method on app:**
     
     FlutterPayOrc.instance.clearData();
