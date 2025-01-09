@@ -1,10 +1,6 @@
-
 import 'package:flutter_pay_orc/flutter_pay_orc.dart';
 
-import 'flutter_pay_orc_environment.dart';
-
 class ConfigMemoryHolder {
-
   /// The user ID.
   String? userId;
 

@@ -17,10 +17,12 @@ class PayOrcPaymentTransactionResponse {
     this.code,
   });
 
-  factory PayOrcPaymentTransactionResponse.fromJson(Map<String, dynamic> json) =>
+  factory PayOrcPaymentTransactionResponse.fromJson(
+          Map<String, dynamic> json) =>
       _$PayOrcPaymentTransactionResponseFromJson(json);
 
-  Map<String, dynamic> toJson() => _$PayOrcPaymentTransactionResponseToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$PayOrcPaymentTransactionResponseToJson(this);
 }
 
 @JsonSerializable()
@@ -87,9 +89,12 @@ class PayOrcPaymentTransactionResponseData {
     this.channel,
   });
 
-  factory PayOrcPaymentTransactionResponseData.fromJson(Map<String, dynamic> json) => _$PayOrcPaymentTransactionResponseDataFromJson(json);
+  factory PayOrcPaymentTransactionResponseData.fromJson(
+          Map<String, dynamic> json) =>
+      _$PayOrcPaymentTransactionResponseDataFromJson(json);
 
-  Map<String, dynamic> toJson() => _$PayOrcPaymentTransactionResponseDataToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$PayOrcPaymentTransactionResponseDataToJson(this);
 }
 
 @JsonSerializable()

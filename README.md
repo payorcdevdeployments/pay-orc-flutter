@@ -15,9 +15,11 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-The plugin project was generated without specifying the `--platforms` flag, no platforms are currently supported.
+The plugin project was generated without specifying the `--platforms` flag, no platforms are
+currently supported.
 To add platforms, run `flutter create -t plugin --platforms <platforms> .` in this directory.
-You can also find a detailed instruction on how to add platforms in the `pubspec.yaml` at https://flutter.dev/to/pubspec-plugin-platforms.
+You can also find a detailed instruction on how to add platforms in the `pubspec.yaml`
+at https://flutter.dev/to/pubspec-plugin-platforms.
 
 Steps to follow:
 
@@ -33,6 +35,7 @@ Steps to follow:
     }
 
 ## Step 2 : Implement create payment on stateful widget init state and load below widget based on api response..
+
     **Method name on sdk:**
 
     Future<PayOrcPaymentResponse> createPayment(
@@ -220,6 +223,7 @@ Steps to follow:
       )
 
 ## Step 6 : To clear data call following method.
+
     **Method name on sdk:**
     
     void clearData() {

@@ -11,10 +11,15 @@ class PreferencesHelper {
 
   // Getters and Setters
   String get merchantKey => preferences.getString(PREF_MERCHENT_KEY) ?? "";
-  set merchantKey(String value) => preferences.setString(PREF_MERCHENT_KEY, value);
 
-  String get merchantSecret => preferences.getString(PREF_MERCHENT_SECRET) ?? "";
-  set merchantSecret(String value) => preferences.setString(PREF_MERCHENT_SECRET, value);
+  set merchantKey(String value) =>
+      preferences.setString(PREF_MERCHENT_KEY, value);
+
+  String get merchantSecret =>
+      preferences.getString(PREF_MERCHENT_SECRET) ?? "";
+
+  set merchantSecret(String value) =>
+      preferences.setString(PREF_MERCHENT_SECRET, value);
 
   Future<void> clear() async {
     await preferences.clear();

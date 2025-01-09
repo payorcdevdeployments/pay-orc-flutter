@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 part 'pay_orc_payment_response.g.dart';
 
 @JsonSerializable()
