@@ -126,14 +126,14 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
               });
               if (url != null) {
                 // Optionally, handle the URL here as well
-                if (url.toString().contains("success")) {
+                if (url.toString().contains("checkout/status")) {
                   final transactionId = url.queryParameters["transaction_id"];
                   widget.onPaymentResult(true, transactionId);
-                  Navigator.pop(context);
-                } else if (url.toString().contains("failure")) {
+                  //Navigator.pop(context); // Need to check and use it based on navigator usage.
+                } /*else if (url.toString().contains("failure")) {
                   widget.onPaymentResult(false, null);
                   Navigator.pop(context);
-                }
+                }*/
               }
             },
             onReceivedError: (controller, request, error) {

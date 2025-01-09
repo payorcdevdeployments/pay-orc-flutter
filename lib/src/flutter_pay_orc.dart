@@ -115,6 +115,7 @@ class FlutterPayOrc {
 
   /// Clear preference data
   void clearData() {
+    instance.configMemoryHolder = ConfigMemoryHolder();
     preferenceHelper.clear();
   }
 
