@@ -4,10 +4,9 @@ part 'pay_orc_error.g.dart';
 
 @JsonSerializable()
 class PayOrcError {
-  @JsonKey(name: 'data')
   final String? message;
   final String? status;
-  final String? code;
+  final int? code;
 
   PayOrcError({
     this.message,

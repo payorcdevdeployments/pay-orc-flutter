@@ -7,14 +7,14 @@ part of 'pay_orc_error.dart';
 // **************************************************************************
 
 PayOrcError _$PayOrcErrorFromJson(Map<String, dynamic> json) => PayOrcError(
-      message: json['data'] as String?,
+      message: json['message'] as String?,
       status: json['status'] as String?,
-      code: json['code'] as String?,
+      code: (json['code'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$PayOrcErrorToJson(PayOrcError instance) =>
     <String, dynamic>{
-      'data': instance.message,
+      'message': instance.message,
       'status': instance.status,
       'code': instance.code,
     };

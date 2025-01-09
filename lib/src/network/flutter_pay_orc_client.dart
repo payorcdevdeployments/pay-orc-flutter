@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -50,15 +51,15 @@ class FlutterPayOrcClient {
       if (response.statusCode == 200) {
         return PayOrcPaymentResponse.fromJson(response.data);
       } else {
-        throw Exception('Failed to create order request');
+        throw HttpException('Failed to create order request');
       }
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {
         final payOrcError = PayOrcError.fromJson(e.response!.data);
-        throw Exception('${payOrcError.message}');
+        throw HttpException('${payOrcError.message}');
       } else {
-        throw Exception('Error : ${e.message}');
+        throw HttpException('${e.message}');
       }
     }
   }
@@ -74,15 +75,15 @@ class FlutterPayOrcClient {
       if (response.statusCode == 200) {
         return PayOrcPaymentTransactionResponse.fromJson(response.data);
       } else {
-        throw Exception('Failed to fetch transaction');
+        throw HttpException('Failed to fetch transaction');
       }
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {
         final payOrcError = PayOrcError.fromJson(e.response!.data);
-        throw Exception('${payOrcError.message}');
+        throw HttpException('${payOrcError.message}');
       } else {
-        throw Exception('Error : ${e.message}');
+        throw HttpException('${e.message}');
       }
     }
   }

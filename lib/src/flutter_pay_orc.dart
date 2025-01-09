@@ -5,6 +5,8 @@
 // platforms in the `pubspec.yaml` at
 // https://flutter.dev/to/pubspec-plugin-platforms.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pay_orc/src/network/models/pay_orc_payment_response.dart';
 import 'package:flutter_pay_orc/src/network/models/pay_orc_payment_transaction_response.dart';
@@ -120,15 +122,15 @@ class FlutterPayOrc {
   }
 
   Widget createPaymentWithCustomWidget({
-    required Function(bool success, String? transactionId) onPaymentResult,
+    required Function(bool success, {String? errorMessage}) onPaymentResult,
   }) {
     final paymentUrl =
         instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
     return paymentUrl != null && paymentUrl.isNotEmpty
         ? PayOrcWebView(
-            paymentUrl: paymentUrl,
-            onPaymentResult: onPaymentResult,
-          )
+      paymentUrl: paymentUrl,
+      onPaymentResult: onPaymentResult,
+    )
         : Text('Payment URL is not available');
   }
 
@@ -164,8 +166,9 @@ class FlutterPayOrc {
   Future<void> createPaymentWithWidget({
     required BuildContext context,
     required PayOrcPaymentRequest request,
-    required Function(bool success, String? transactionId) onPaymentResult,
-    required Function(bool success) onLoadingResult,
+    required Function(bool success, {String? errorMessage}) onPaymentResult,
+    required Function(bool loading) onLoadingResult,
+    required Function() onPopResult
   }) async {
     try {
       onLoadingResult.call(true);
@@ -175,13 +178,15 @@ class FlutterPayOrc {
           instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
       if (context.mounted) {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => PayOrcWebView(
+            builder: (context) =>
+                PayOrcWebView(
                   paymentUrl: paymentUrl!,
                   onPaymentResult: onPaymentResult,
+                  onPopResult: onPopResult,
                 )));
       }
-    } catch (e) {
-      // Handle errors.
+    } on HttpException catch (e) {
+      onPaymentResult.call(false, errorMessage: e.message);
       rethrow;
     } finally {
       onLoadingResult.call(false);
