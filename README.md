@@ -2,7 +2,7 @@
 
 A Flutter plugin for orc payment.
 
-## Developed By : Jere Pious
+## Developed By : PayOrc
 
 ## Getting Started
 
