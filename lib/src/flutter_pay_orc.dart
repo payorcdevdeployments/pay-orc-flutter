@@ -119,7 +119,7 @@ class FlutterPayOrc {
     preferenceHelper.clear();
   }
 
-  Widget startPayment({
+  Widget createPaymentWithCustomWidget({
     required Function(bool success, String? transactionId) onPaymentResult,
   }) {
     final paymentUrl =
@@ -143,7 +143,7 @@ class FlutterPayOrc {
       return response;
     } catch (e) {
       // Handle errors.
-      throw Exception('Error during payment creation: $e');
+      rethrow;
     }
   }
 
@@ -156,7 +156,7 @@ class FlutterPayOrc {
       return response;
     } catch (e) {
       // Handle errors.
-      throw Exception('Error during payment creation: $e');
+      rethrow;
     }
   }
 
@@ -182,7 +182,7 @@ class FlutterPayOrc {
       }
     } catch (e) {
       // Handle errors.
-      throw Exception('Error during payment creation: $e');
+      rethrow;
     } finally {
       onLoadingResult.call(false);
     }

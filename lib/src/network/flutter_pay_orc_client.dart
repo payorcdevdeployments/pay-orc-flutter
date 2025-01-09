@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_pay_orc/src/helper/api_paths.dart';
+import 'package:flutter_pay_orc/src/network/models/pay_orc_error.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import 'models/pay_orc_payment_request.dart';
@@ -27,12 +29,12 @@ class FlutterPayOrcClient {
             })) {
     // Add logging interceptor
     _dio.interceptors.add(PrettyDioLogger(
-      requestHeader: true,
-      requestBody: true,
-      responseBody: true,
-      responseHeader: false,
-      error: true,
-      compact: true,
+      requestHeader: kDebugMode,
+      requestBody: kDebugMode,
+      responseBody: kDebugMode,
+      responseHeader: kDebugMode,
+      error: kDebugMode,
+      compact: kDebugMode,
     ));
   }
 
@@ -48,14 +50,15 @@ class FlutterPayOrcClient {
       if (response.statusCode == 200) {
         return PayOrcPaymentResponse.fromJson(response.data);
       } else {
-        throw Exception('Failed to create order');
+        throw Exception('Failed to create order request');
       }
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {
-        throw Exception('Payment failed: ${e.response?.data}');
+        final payOrcError = PayOrcError.fromJson(e.response!.data);
+        throw Exception('${payOrcError.message}');
       } else {
-        throw Exception('Network error: ${e.message}');
+        throw Exception('Error : ${e.message}');
       }
     }
   }
@@ -71,14 +74,15 @@ class FlutterPayOrcClient {
       if (response.statusCode == 200) {
         return PayOrcPaymentTransactionResponse.fromJson(response.data);
       } else {
-        throw Exception('Failed to create order');
+        throw Exception('Failed to fetch transaction');
       }
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {
-        throw Exception('Payment failed: ${e.response?.data}');
+        final payOrcError = PayOrcError.fromJson(e.response!.data);
+        throw Exception('${payOrcError.message}');
       } else {
-        throw Exception('Network error: ${e.message}');
+        throw Exception('Error : ${e.message}');
       }
     }
   }
