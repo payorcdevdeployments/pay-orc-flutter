@@ -20,7 +20,7 @@ import 'network/models/pay_orc_payment_request.dart';
 
 class FlutterPayOrc {
   final PreferencesHelper preferenceHelper;
-  final ConfigMemoryHolder configMemoryHolder = ConfigMemoryHolder();
+  ConfigMemoryHolder configMemoryHolder = ConfigMemoryHolder();
   late final FlutterPayOrcClient _client;
 
   Future<String?> getPlatformVersion() {
@@ -115,7 +115,7 @@ class FlutterPayOrc {
 
   /// Clear preference data
   void clearData() {
-    instance.configMemoryHolder = ConfigMemoryHolder();
+    configMemoryHolder = ConfigMemoryHolder();
     preferenceHelper.clear();
   }
 
