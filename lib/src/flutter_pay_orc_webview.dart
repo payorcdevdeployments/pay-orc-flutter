@@ -1,8 +1,11 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_pay_orc/flutter_pay_orc.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class PayOrcWebView extends StatefulWidget {
   final String paymentUrl;
@@ -27,15 +30,14 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
   WebViewEnvironment? webViewEnvironment;
   InAppWebViewController? webViewController;
   InAppWebViewSettings settings = InAppWebViewSettings(
-    isInspectable: kDebugMode,
-    javaScriptEnabled: true,
-    mediaPlaybackRequiresUserGesture: false,
-    allowsInlineMediaPlayback: true,
-    useShouldOverrideUrlLoading: true,
-    cacheMode: CacheMode.LOAD_NO_CACHE,
-    mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
-    iframeAllowFullscreen: true,
-  );
+      isInspectable: kDebugMode,
+      javaScriptEnabled: true,
+      mediaPlaybackRequiresUserGesture: false,
+      allowsInlineMediaPlayback: true,
+      useShouldOverrideUrlLoading: true,
+      cacheMode: CacheMode.LOAD_NO_CACHE,
+      mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
+      iframeAllowFullscreen: true);
 
   @override
   void initState() {
@@ -187,6 +189,8 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
                             // Navigator.pop(context); // Need to check and use it based on navigator usage.
                           }
                         }
+
+                        await _getPostData();
                       },
                       onReceivedError: (controller, request, error) {
                         debugPrint(error.description);
@@ -214,6 +218,64 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
                 ],
               ),
             ),
+
+            //   child: WebViewWidget(
+            //     controller: WebViewController()
+            //       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+            //       ..setNavigationDelegate(
+            //         NavigationDelegate(
+            //           onProgress: (int progress) {
+            //           },
+            //           onPageStarted: (String url) {},
+            //           onPageFinished: (String url) {},
+            //           onHttpError: (HttpResponseError error) {},
+            //           onNavigationRequest: (NavigationRequest request) {
+            //             if (request.url.startsWith('https://www.youtube.com/')) {
+            //               return NavigationDecision.prevent;
+            //             }
+            //             return NavigationDecision.navigate;
+            //           },
+            //         ),
+            //       )
+            //       ..loadRequest(Uri.parse('https://flutter.dev')),
+            //   ),
           );
+  }
+
+  Future<void> _getPostData() async {
+    // Inject your JavaScript code to capture post messages and listen for them
+    await webViewController?.evaluateJavascript(source: """
+            var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+            var eventer = window[eventMethod];
+            var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+            
+            // Listen to message from child window
+            eventer(messageEvent, function(e) {
+              console.log(JSON.parse(e.data)); // This will show all the result attributes
+              var result = JSON.parse(e.data);
+              
+              // if (result['status'] == "SUCCESS") {
+              //   alert("Transaction successful. Transaction ID: " + result['transaction_id']);
+              // } else if (result['status'] == "CANCELLED") {
+              //   alert(result['remark']);
+              // } else if (result['status'] == "FAILED") {
+              //   alert("Transaction failed. Transaction ID: " + result['transaction_id']);
+              // }
+                            
+              // Send the result data to Flutter for further processing
+              window.flutter_inappwebview.callHandler('onPostMessage', e.data);
+            }, false);
+          """);
+
+    webViewController?.addJavaScriptHandler(
+        handlerName: 'onPostMessage',
+        callback: (args) {
+          if (args.isNotEmpty) {
+            final data = PayOrcPaymentTransactionResponseData.fromJson(
+                jsonDecode(args.first) as Map<String, dynamic>);
+            print(data.toJson());
+            setState(() {});
+          }
+        });
   }
 }
