@@ -21,7 +21,7 @@ PayOrcPaymentTransactionResponse _$PayOrcPaymentTransactionResponseFromJson(
 Map<String, dynamic> _$PayOrcPaymentTransactionResponseToJson(
         PayOrcPaymentTransactionResponse instance) =>
     <String, dynamic>{
-      'data': instance.data,
+      'data': instance.data?.toJson(),
       'message': instance.message,
       'status': instance.status,
       'code': instance.code,
@@ -74,7 +74,7 @@ Map<String, dynamic> _$PayOrcPaymentTransactionResponseDataToJson(
       'payment_method': instance.paymentMethod,
       'm_customer_id': instance.mCustomerId,
       'm_payment_token': instance.mPaymentToken,
-      'payment_method_data': instance.paymentMethodData,
+      'payment_method_data': instance.paymentMethodData?.toJson(),
       'apm_name': instance.apmName,
       'apm_identifier': instance.apmIdentifier,
       'sub_merchant_identifier': instance.subMerchantIdentifier,

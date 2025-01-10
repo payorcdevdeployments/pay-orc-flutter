@@ -8,7 +8,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_pay_orc/src/network/models/pay_orc_payment_response.dart';
 import 'package:flutter_pay_orc/src/network/models/pay_orc_payment_transaction_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -118,58 +117,39 @@ class FlutterPayOrc {
   /// Clear preference data
   void clearData() {
     configMemoryHolder = ConfigMemoryHolder();
-    preferenceHelper.clear();
   }
 
-  Widget createPaymentWithCustomWidget({
-    required Function(bool success, {String? errorMessage}) onPaymentResult,
-  }) {
+  Widget createPaymentWithCustomWidget() {
     final paymentUrl =
         instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
     return paymentUrl != null && paymentUrl.isNotEmpty
         ? PayOrcWebView(
-      paymentUrl: paymentUrl,
-      onPaymentResult: onPaymentResult,
-    )
+            paymentUrl: paymentUrl,
+          )
         : Text('Payment URL is not available');
   }
 
-  /// Api calls ///
-  /// To create payment
-  Future<PayOrcPaymentResponse> createPayment(
-      {required PayOrcPaymentRequest request}) async {
-    try {
-      final response = await _client.createPayment(request);
-      configMemoryHolder.payOrcPaymentResponse = response;
-      configMemoryHolder.orderId = response.pOrderId.toString();
-      return response;
-    } catch (e) {
-      // Handle errors.
-      rethrow;
-    }
-  }
-
   /// To fetch payment transaction
-  Future<PayOrcPaymentTransactionResponse> fetchPaymentTransaction(
-      {required String orderId}) async {
+  Future<PayOrcPaymentTransactionResponse?> fetchPaymentTransaction(
+      {required String orderId,
+      required Function(String? message) errorResult}) async {
     try {
       final response = await _client.fetchPaymentTransaction(orderId);
       configMemoryHolder.payOrcPaymentTransactionResponse = response;
       return response;
-    } catch (e) {
-      // Handle errors.
-      rethrow;
+    } on HttpException catch (e) {
+      errorResult.call(e.message);
+      return null;
     }
   }
 
   /// To create payment with widget
-  Future<void> createPaymentWithWidget({
-    required BuildContext context,
-    required PayOrcPaymentRequest request,
-    required Function(bool success, {String? errorMessage}) onPaymentResult,
-    required Function(bool loading) onLoadingResult,
-    required Function() onPopResult
-  }) async {
+  Future<void> createPaymentWithWidget(
+      {required BuildContext context,
+      required PayOrcPaymentRequest request,
+      required Function(bool loading) onLoadingResult,
+      required Function(String? message) errorResult,
+      required Function(String? pOrderId) onPopResult}) async {
     try {
       onLoadingResult.call(true);
       final response = await _client.createPayment(request);
@@ -178,16 +158,13 @@ class FlutterPayOrc {
           instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
       if (context.mounted) {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) =>
-                PayOrcWebView(
+            builder: (context) => PayOrcWebView(
                   paymentUrl: paymentUrl!,
-                  onPaymentResult: onPaymentResult,
                   onPopResult: onPopResult,
                 )));
       }
     } on HttpException catch (e) {
-      onPaymentResult.call(false, errorMessage: e.message);
-      rethrow;
+      errorResult.call(e.message);
     } finally {
       onLoadingResult.call(false);
     }

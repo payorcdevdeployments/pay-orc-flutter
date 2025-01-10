@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'pay_orc_payment_transaction_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, explicitToJson: true)
 class PayOrcPaymentTransactionResponse {
   @JsonKey(name: 'data')
   final PayOrcPaymentTransactionResponseData? data;
@@ -25,7 +25,7 @@ class PayOrcPaymentTransactionResponse {
       _$PayOrcPaymentTransactionResponseToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, explicitToJson: true)
 class PayOrcPaymentTransactionResponseData {
   @JsonKey(name: 'm_order_id')
   final String? mOrderId;
@@ -97,7 +97,7 @@ class PayOrcPaymentTransactionResponseData {
       _$PayOrcPaymentTransactionResponseDataToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, explicitToJson: true)
 class PaymentMethodData {
   final String? scheme;
   @JsonKey(name: 'card_country')

@@ -5,16 +5,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_pay_orc/flutter_pay_orc.dart';
+import 'package:flutter_pay_orc/src/network/models/pay_orc_transaction.dart';
 
 class PayOrcWebView extends StatefulWidget {
   final String paymentUrl;
-  final Function(bool success, {String? errorMessage}) onPaymentResult;
-  final Function()? onPopResult;
+  final Function(String? pOrderId)? onPopResult;
 
   const PayOrcWebView({
     super.key,
     required this.paymentUrl,
-    required this.onPaymentResult,
     this.onPopResult,
   });
 
@@ -66,161 +65,77 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
     }
   }
 
+  bool _gotPaymentStatus = false;
+
   @override
   Widget build(BuildContext context) {
-    return widget.onPopResult == null
-        ? Stack(
-            children: [
-              if (widget.paymentUrl.isEmpty)
-                Center(
-                  child: Text("Invalid payment URL."),
-                )
-              else
-                InAppWebView(
-                  key: webViewKey,
-                  webViewEnvironment: webViewEnvironment,
-                  initialUrlRequest:
-                      URLRequest(url: WebUri.uri(Uri.parse(widget.paymentUrl))),
-                  initialUserScripts: UnmodifiableListView<UserScript>([]),
-                  initialSettings: settings,
-                  onWebViewCreated: (controller) async {
-                    webViewController = controller;
-                  },
-                  onLoadStart: (controller, url) {
-                    setState(() {
-                      isLoading = true; // Show loader when loading starts
-                    });
-                  },
-                  shouldOverrideUrlLoading:
-                      (controller, navigationAction) async {
-                    final url = navigationAction.request.url!;
-                    if (url.toString().contains("checkout/status")) {
-                      widget.onPaymentResult(true);
-                      // Navigator.pop(context); // Need to check and use it based on navigator usage.
-                      return NavigationActionPolicy.CANCEL;
-                    }
-                    return NavigationActionPolicy.ALLOW;
-                  },
-                  onLoadStop: (controller, url) async {
-                    setState(() {
-                      isLoading = false; // Hide loader when loading stops
-                    });
-                    if (url != null) {
-                      // Optionally, handle the URL here as well
-                      if (url.toString().contains("checkout/status")) {
-                        widget.onPaymentResult(true);
-                        // Navigator.pop(context); // Need to check and use it based on navigator usage.
-                      }
-                    }
-                  },
-                  onReceivedError: (controller, request, error) {
-                    debugPrint(error.description);
-                    widget.onPaymentResult(false,
-                        errorMessage: error.description);
-                  },
-                  onProgressChanged: (controller, progress) {},
-                  onUpdateVisitedHistory: (controller, url, isReload) {},
-                  onConsoleMessage: (controller, consoleMessage) {
-                    debugPrint(consoleMessage
-                        .message); // To capture JavaScript console logs
-                  },
-                  onReceivedServerTrustAuthRequest:
-                      (controller, challenge) async {
-                    return ServerTrustAuthResponse(
-                        action: ServerTrustAuthResponseAction.PROCEED);
-                  },
-                ),
-              if (isLoading)
-                const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.purple,
-                  ),
-                ),
-            ],
-          )
-        : PopScope(
-            canPop: true,
-            onPopInvokedWithResult: (didPop, result) {
-              widget.onPopResult?.call();
-            },
-            child: Scaffold(
-              appBar: AppBar(title: const Text("Payment")),
-              body: Stack(
-                children: [
-                  if (widget.paymentUrl.isEmpty)
-                    Center(
-                      child: Text("Invalid payment URL."),
-                    )
-                  else
-                    InAppWebView(
-                      key: webViewKey,
-                      webViewEnvironment: webViewEnvironment,
-                      initialUrlRequest: URLRequest(
-                          url: WebUri.uri(Uri.parse(widget.paymentUrl))),
-                      initialUserScripts: UnmodifiableListView<UserScript>([]),
-                      initialSettings: settings,
-                      onWebViewCreated: (controller) async {
-                        webViewController = controller;
-                      },
-                      onLoadStart: (controller, url) {
-                        setState(() {
-                          isLoading = true; // Show loader when loading starts
-                        });
-                      },
-                      shouldOverrideUrlLoading:
-                          (controller, navigationAction) async {
-                        final url = navigationAction.request.url!;
-                        if (url.toString().contains("checkout/status")) {
-                          widget.onPaymentResult(true);
-                          // Navigator.pop(context); // Need to check and use it based on navigator usage.
-                          return NavigationActionPolicy.CANCEL;
-                        }
-                        return NavigationActionPolicy.ALLOW;
-                      },
-                      onLoadStop: (controller, url) async {
-                        setState(() {
-                          isLoading = false; // Hide loader when loading stops
-                        });
-                        if (url != null) {
-                          // Optionally, handle the URL here as well
-                          if (url.toString().contains("checkout/status")) {
-                            widget.onPaymentResult(true);
-                            // Navigator.pop(context); // Need to check and use it based on navigator usage.
-                          }
-                        }
-
-                        await _getPostData();
-                      },
-                      onReceivedError: (controller, request, error) {
-                        debugPrint(error.description);
-                        // widget.onPaymentResult(false,
-                        //     errorMessage: error.description);
-                      },
-                      onProgressChanged: (controller, progress) {},
-                      onUpdateVisitedHistory: (controller, url, isReload) {},
-                      onConsoleMessage: (controller, consoleMessage) {
-                        debugPrint(consoleMessage
-                            .message); // To capture JavaScript console logs
-                      },
-                      onReceivedServerTrustAuthRequest:
-                          (controller, challenge) async {
-                        return ServerTrustAuthResponse(
-                            action: ServerTrustAuthResponseAction.PROCEED);
-                      },
-                    ),
-                  if (isLoading)
-                    const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.purple,
-                      ),
-                    ),
-                ],
+    return PopScope(
+      canPop: _gotPaymentStatus,
+      onPopInvokedWithResult: (didPop, result) async {
+        bool? canGoBack = await webViewController?.canGoBack();
+        if (!_gotPaymentStatus && (canGoBack ?? false)) {
+          webViewController?.goBack();
+        } else {
+          widget.onPopResult?.call!(FlutterPayOrc.instance.orderId);
+        }
+      },
+      child: Stack(
+        children: [
+          if (widget.paymentUrl.isEmpty)
+            Center(
+              child: Text("Invalid payment URL."),
+            )
+          else
+            InAppWebView(
+              key: webViewKey,
+              webViewEnvironment: webViewEnvironment,
+              initialUrlRequest:
+                  URLRequest(url: WebUri.uri(Uri.parse(widget.paymentUrl))),
+              initialUserScripts: UnmodifiableListView<UserScript>([]),
+              initialSettings: settings,
+              onWebViewCreated: (controller) async {
+                webViewController = controller;
+              },
+              onLoadStart: (controller, url) {
+                setState(() {
+                  isLoading = true; // Show loader when loading starts
+                });
+              },
+              shouldOverrideUrlLoading: (controller, navigationAction) async {
+                return NavigationActionPolicy.ALLOW;
+              },
+              onLoadStop: (controller, url) async {
+                setState(() {
+                  isLoading = false; // Hide loader when loading stops
+                });
+                await _getPostData(context);
+              },
+              onReceivedError: (controller, request, error) {
+                debugPrint(error.description);
+              },
+              onProgressChanged: (controller, progress) {},
+              onUpdateVisitedHistory: (controller, url, isReload) {},
+              onConsoleMessage: (controller, consoleMessage) {
+                debugPrint(consoleMessage
+                    .message); // To capture JavaScript console logs
+              },
+              onReceivedServerTrustAuthRequest: (controller, challenge) async {
+                return ServerTrustAuthResponse(
+                    action: ServerTrustAuthResponseAction.PROCEED);
+              },
+            ),
+          if (isLoading)
+            const Center(
+              child: CircularProgressIndicator(
+                color: Colors.purple,
               ),
             ),
-          );
+        ],
+      ),
+    );
   }
 
-  Future<void> _getPostData() async {
+  Future<void> _getPostData(BuildContext context) async {
     // Inject your JavaScript code to capture post messages and listen for them
     await webViewController?.evaluateJavascript(source: """
             var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -247,12 +162,21 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
 
     webViewController?.addJavaScriptHandler(
         handlerName: 'onPostMessage',
-        callback: (args) {
+        callback: (args) async {
           if (args.isNotEmpty) {
-            final data = PayOrcPaymentTransactionResponseData.fromJson(
+            setState(() {
+              _gotPaymentStatus = true;
+            });
+
+            final data = Transaction.fromJson(
                 jsonDecode(args.first) as Map<String, dynamic>);
-            print(data.toJson());
-            setState(() {});
+            debugPrint('onPostMessage : ${data.toJson()}');
+            FlutterPayOrc.instance.orderId = data.pOrderId;
+
+            await Future.delayed(Duration(seconds: 5));
+            if (context.mounted) {
+              Navigator.of(context).maybePop(true);
+            }
           }
         });
   }

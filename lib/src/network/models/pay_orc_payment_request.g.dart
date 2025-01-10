@@ -15,7 +15,7 @@ PayOrcPaymentRequest _$PayOrcPaymentRequestFromJson(
 Map<String, dynamic> _$PayOrcPaymentRequestToJson(
         PayOrcPaymentRequest instance) =>
     <String, dynamic>{
-      'data': instance.data,
+      'data': instance.data.toJson(),
     };
 
 Data _$DataFromJson(Map<String, dynamic> json) => Data(
@@ -39,11 +39,11 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
       'action': instance.action,
       'capture_method': instance.captureMethod,
       'payment_token': instance.paymentToken,
-      'order_details': instance.orderDetails,
-      'customer_details': instance.customerDetails,
-      'billing_details': instance.billingDetails,
-      'shipping_details': instance.shippingDetails,
-      'urls': instance.urls,
+      'order_details': instance.orderDetails.toJson(),
+      'customer_details': instance.customerDetails.toJson(),
+      'billing_details': instance.billingDetails.toJson(),
+      'shipping_details': instance.shippingDetails.toJson(),
+      'urls': instance.urls.toJson(),
     };
 
 OrderDetails _$OrderDetailsFromJson(Map<String, dynamic> json) => OrderDetails(

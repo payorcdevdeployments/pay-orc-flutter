@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'pay_orc_payment_request.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, explicitToJson: true)
 class PayOrcPaymentRequest {
   @JsonKey(name: 'data')
   final Data data;
@@ -15,7 +15,7 @@ class PayOrcPaymentRequest {
   Map<String, dynamic> toJson() => _$PayOrcPaymentRequestToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, explicitToJson: true)
 class Data {
   @JsonKey(name: 'class')
   final String className;
@@ -53,7 +53,7 @@ class Data {
   Map<String, dynamic> toJson() => _$DataToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, explicitToJson: true)
 class OrderDetails {
   @JsonKey(name: 'm_order_id')
   final String mOrderId;
@@ -83,7 +83,7 @@ class OrderDetails {
   Map<String, dynamic> toJson() => _$OrderDetailsToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, explicitToJson: true)
 class CustomerDetails {
   @JsonKey(name: 'm_customer_id')
   final String mCustomerId;
@@ -106,7 +106,7 @@ class CustomerDetails {
   Map<String, dynamic> toJson() => _$CustomerDetailsToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, explicitToJson: true)
 class BillingDetails {
   @JsonKey(name: 'address_line1')
   final String addressLine1;
@@ -132,7 +132,7 @@ class BillingDetails {
   Map<String, dynamic> toJson() => _$BillingDetailsToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, explicitToJson: true)
 class ShippingDetails {
   @JsonKey(name: 'shipping_name')
   final String shippingName;
@@ -179,7 +179,7 @@ class ShippingDetails {
   Map<String, dynamic> toJson() => _$ShippingDetailsToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, explicitToJson: true)
 class Urls {
   final String success;
   final String cancel;

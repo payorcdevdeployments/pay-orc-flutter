@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'pay_orc_payment_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, explicitToJson: true)
 class PayOrcPaymentResponse {
   @JsonKey(name: 'status')
   final String status;
