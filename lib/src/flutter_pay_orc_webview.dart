@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_pay_orc/flutter_pay_orc.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class PayOrcWebView extends StatefulWidget {
   final String paymentUrl;
@@ -218,27 +217,6 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
                 ],
               ),
             ),
-
-            //   child: WebViewWidget(
-            //     controller: WebViewController()
-            //       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-            //       ..setNavigationDelegate(
-            //         NavigationDelegate(
-            //           onProgress: (int progress) {
-            //           },
-            //           onPageStarted: (String url) {},
-            //           onPageFinished: (String url) {},
-            //           onHttpError: (HttpResponseError error) {},
-            //           onNavigationRequest: (NavigationRequest request) {
-            //             if (request.url.startsWith('https://www.youtube.com/')) {
-            //               return NavigationDecision.prevent;
-            //             }
-            //             return NavigationDecision.navigate;
-            //           },
-            //         ),
-            //       )
-            //       ..loadRequest(Uri.parse('https://flutter.dev')),
-            //   ),
           );
   }
 
