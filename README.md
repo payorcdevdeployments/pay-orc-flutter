@@ -34,105 +34,54 @@ Steps to follow:
         runApp(const MyApp());
     }
 
-## Step 2 : Implement create payment on stateful widget init state and load below widget based on api response..
+## Step 2 : Implement createPaymentWithWidget on widget will auto push on view.
 
     **Method name on sdk:**
 
-    Future<PayOrcPaymentResponse> createPayment(
-        {required PayOrcPaymentRequest request}) async {
-        try {
-            final response = await _client.createPayment(request);
-            configMemoryHolder.payOrcPaymentResponse = response;
-            return response;
-        } catch (e) {
-            // Handle errors.
-            throw Exception('Error during payment creation: $e');
-        }
-    }
-
-    **To call this method on app:**
-
-    final response = await FlutterPayOrc.instance.createPayment(
-        request: createPayOrcPaymentRequest(),
-      );
-
-    **Method name on sdk:**
-
-    Widget startPayment({
-        required BuildContext context,
-        required double amount,
-        required String currency,
-        required Function(bool success, String? transactionId) onPaymentResult,
-        }) {
-            final paymentUrl = instance.configMemoryHolder.paymentUrl;
-            return PayOrcWebView(
-            paymentUrl: paymentUrl!,
-            onPaymentResult: onPaymentResult,
-        );
-    }
-
-    **To call this method on app:**
-
-    FlutterPayOrc.instance.startPayment(
-        onPaymentResult: (success, transactionId) {
-          if (success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text(
-                      'Payment successful. Transaction ID: $transactionId')),
-            );
-            Navigator.pop(context);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Payment failed.')),
-            );
-          }
-        },
-      )
-
-## Step 3 : Implement createPaymentWithWidget on widget will auto push on view.
-
-    **Method name on sdk:**
-
-    Future<void> createPaymentWithWidget({
-        required BuildContext context,
-        required PayOrcPaymentRequest request,
-        required Function(bool success, String? transactionId) onPaymentResult,
-        }) async {
+        Future<void> createPaymentWithWidget(
+              {required BuildContext context,
+              required PayOrcPaymentRequest request,
+              required Function(bool loading) onLoadingResult,
+              required Function(String? message) errorResult,
+              required Function(String? pOrderId) onPopResult}) async {
             try {
-                final response = await _client.createPayment(request);
-                configMemoryHolder.payOrcPaymentResponse = response;
-                final paymentUrl =
-                instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
+              onLoadingResult.call(true);
+              final response = await _client.createPayment(request);
+              configMemoryHolder.payOrcPaymentResponse = response;
+              final paymentUrl =
+                  instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
+              if (context.mounted) {
                 Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => PayOrcWebView(
-                paymentUrl: paymentUrl!,
-                onPaymentResult: onPaymentResult,
-                )));
-            } catch (e) {
-                // Handle errors.
-                throw Exception('Error during payment creation: $e');
+                    builder: (context) => PayOrcWebView(
+                          paymentUrl: paymentUrl!,
+                          onPopResult: onPopResult,
+                        )));
+              }
+            } on HttpException catch (e) {
+              errorResult.call(e.message);
+            } finally {
+              onLoadingResult.call(false);
             }
-    }
+        }
 
     **To call this method on app:**
 
-    await FlutterPayOrc.instance.createPaymentWithWidget(context: context, request: createPayOrcPaymentRequest(), onPaymentResult: (success, transactionId) {
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Payment successful. Transaction ID: $transactionId')),
-        );
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment failed.')),
-        );
-      }
-    }, onLoadingResult: (bool success) {  });
+    await FlutterPayOrc.instance.createPaymentWithWidget(
+                    context: context,
+                    request: createPayOrcPaymentRequest(),
+                    onPopResult: (String? pOrderId) async {
+                      await _fetchTransaction(pOrderId);
+                    },
+                    errorResult: (message) {
+                      debugPrint('errorResult $message');
+                    },
+                    onLoadingResult: (bool success) {
+                      setState(() {
+                        loading = success;
+                      });
+                    });
 
-## Step 4 : payment request object reference.
+## Step 3 : payment request object reference.
 
     final requestData = PayOrcPaymentRequest(
             data: Data(
@@ -186,49 +135,38 @@ Steps to follow:
         ),
     );
 
-## Step 5 : To fetch payment transaction status use p_order_id from create payment response.
+## Step 4 : To fetch payment transaction status use p_order_id from create payment response.
 
     **Method name on sdk:**
 
-    Future<PayOrcPaymentTransactionResponse> fetchPaymentTransaction(
-        {required String orderId}) async {
+    Future<PayOrcPaymentTransactionResponse?> fetchPaymentTransaction(
+          {required String orderId,
+          required Function(String? message) errorResult}) async {
         try {
-            final response = await _client.fetchPaymentTransaction(orderId);
-            configMemoryHolder.payOrcPaymentTransactionResponse = response;
-            return response;
-        } catch (e) {
-            // Handle errors.
-            throw Exception('Error during payment creation: $e');
+          final response = await _client.fetchPaymentTransaction(orderId);
+          configMemoryHolder.payOrcPaymentTransactionResponse = response;
+          return response;
+        } on HttpException catch (e) {
+          errorResult.call(e.message);
+          return null;
         }
     }
 
     **To call this method on app:**
 
-    FlutterPayOrc.instance.startPayment(
-        onPaymentResult: (success, transactionId) async {
-          if (success) {
-            await FlutterPayOrc.instance.fetchPaymentTransaction(orderId: FlutterPayOrc.instance.configMemoryHolder.payOrcPaymentResponse!.pOrderId.toString());
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text(
-                      'Payment successful. Transaction ID: $transactionId')),
-            );
-            Navigator.pop(context);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Payment failed.')),
-            );
-          }
-        },
-      )
+    final transaction = await FlutterPayOrc.instance.fetchPaymentTransaction(
+          orderId: pOrderId.toString(),
+          errorResult: (message) {
+            debugPrint('errorResult $message');
+          },
+        );
 
-## Step 6 : To clear data call following method.
+## Step 5 : To clear data call following method.
 
     **Method name on sdk:**
     
     void clearData() {
         instance.configMemoryHolder = ConfigMemoryHolder();
-        preferenceHelper.clear();
     }
     
     **To call this method on app:**

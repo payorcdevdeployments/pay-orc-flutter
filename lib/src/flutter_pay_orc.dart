@@ -119,16 +119,6 @@ class FlutterPayOrc {
     configMemoryHolder = ConfigMemoryHolder();
   }
 
-  Widget createPaymentWithCustomWidget() {
-    final paymentUrl =
-        instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
-    return paymentUrl != null && paymentUrl.isNotEmpty
-        ? PayOrcWebView(
-            paymentUrl: paymentUrl,
-          )
-        : Text('Payment URL is not available');
-  }
-
   /// To fetch payment transaction
   Future<PayOrcPaymentTransactionResponse?> fetchPaymentTransaction(
       {required String orderId,
