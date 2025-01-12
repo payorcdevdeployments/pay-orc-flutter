@@ -6,3 +6,7 @@
 
 * Improved code management
 * Capture postMessage with JavaScript to fetch the transaction status.
+
+## 0.0.3
+
+* Updated postMessage transaction object handling

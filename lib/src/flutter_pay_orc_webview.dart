@@ -172,11 +172,6 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
                 jsonDecode(args.first) as Map<String, dynamic>);
             debugPrint('onPostMessage : ${data.toJson()}');
             FlutterPayOrc.instance.orderId = data.pOrderId;
-
-            await Future.delayed(Duration(seconds: 5));
-            if (context.mounted) {
-              Navigator.of(context).maybePop(true);
-            }
           }
         });
   }
