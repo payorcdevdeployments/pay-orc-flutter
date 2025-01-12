@@ -11,3 +11,4 @@ export 'src/network/models/pay_orc_error.dart';
 export 'src/network/models/pay_orc_payment_request.dart';
 export 'src/network/models/pay_orc_payment_response.dart';
 export 'src/network/models/pay_orc_payment_transaction_response.dart';
+export 'src/network/models/pay_orc_transaction.dart';
