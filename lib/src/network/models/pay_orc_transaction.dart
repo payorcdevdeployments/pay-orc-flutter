@@ -1,4 +1,3 @@
-import 'package:flutter_pay_orc/flutter_pay_orc.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'pay_orc_transaction.g.dart';
