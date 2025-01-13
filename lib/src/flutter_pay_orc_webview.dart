@@ -86,48 +86,72 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
               child: Text("Invalid payment URL."),
             )
           else
-            InAppWebView(
-              key: webViewKey,
-              webViewEnvironment: webViewEnvironment,
-              initialUrlRequest:
-                  URLRequest(url: WebUri.uri(Uri.parse(widget.paymentUrl))),
-              initialUserScripts: UnmodifiableListView<UserScript>([]),
-              initialSettings: settings,
-              onWebViewCreated: (controller) async {
-                webViewController = controller;
-              },
-              onLoadStart: (controller, url) {
-                setState(() {
-                  isLoading = true; // Show loader when loading starts
-                });
-              },
-              shouldOverrideUrlLoading: (controller, navigationAction) async {
-                return NavigationActionPolicy.ALLOW;
-              },
-              onLoadStop: (controller, url) async {
-                setState(() {
-                  isLoading = false; // Hide loader when loading stops
-                });
-                await _getPostData(context);
-              },
-              onReceivedError: (controller, request, error) {
-                debugPrint(error.description);
-              },
-              onProgressChanged: (controller, progress) {},
-              onUpdateVisitedHistory: (controller, url, isReload) {},
-              onConsoleMessage: (controller, consoleMessage) {
-                debugPrint(consoleMessage
-                    .message); // To capture JavaScript console logs
-              },
-              onReceivedServerTrustAuthRequest: (controller, challenge) async {
-                return ServerTrustAuthResponse(
-                    action: ServerTrustAuthResponseAction.PROCEED);
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: InAppWebView(
+                key: webViewKey,
+                webViewEnvironment: webViewEnvironment,
+                initialUrlRequest:
+                    URLRequest(url: WebUri.uri(Uri.parse(widget.paymentUrl))),
+                initialUserScripts: UnmodifiableListView<UserScript>([]),
+                initialSettings: settings,
+                onWebViewCreated: (controller) async {
+                  webViewController = controller;
+                },
+                onLoadStart: (controller, url) {
+                  setState(() {
+                    isLoading = true; // Show loader when loading starts
+                  });
+                },
+                shouldOverrideUrlLoading: (controller, navigationAction) async {
+                  return NavigationActionPolicy.ALLOW;
+                },
+                onLoadStop: (controller, url) async {
+                  setState(() {
+                    isLoading = false; // Hide loader when loading stops
+                  });
+                  await _getPostData(context);
+                },
+                onReceivedError: (controller, request, error) {
+                  debugPrint(error.description);
+                },
+                onProgressChanged: (controller, progress) {},
+                onUpdateVisitedHistory: (controller, url, isReload) {},
+                onConsoleMessage: (controller, consoleMessage) {
+                  debugPrint(consoleMessage
+                      .message); // To capture JavaScript console logs
+                },
+                onReceivedServerTrustAuthRequest:
+                    (controller, challenge) async {
+                  return ServerTrustAuthResponse(
+                      action: ServerTrustAuthResponseAction.PROCEED);
+                },
+              ),
             ),
           if (isLoading)
             const Center(
               child: CircularProgressIndicator(
                 color: Colors.purple,
+              ),
+            ),
+          if (_gotPaymentStatus)
+            Positioned(
+              right: 32,
+              top: 32,
+              child: Container(
+                width: 48, // Width of the rounded container
+                height: 48, // Height of the rounded container
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.1),
+                  shape: BoxShape.circle, // Rounded shape
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  color: Colors.black.withOpacity(0.6),
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                ),
               ),
             ),
         ],

@@ -83,57 +83,82 @@ Steps to follow:
 
 ## Step 3 : payment request object reference.
 
-    final requestData = PayOrcPaymentRequest(
-            data: Data(
-                className: "ECOM",
-                action: "SALE",
-                captureMethod: "MANUAL",
-                paymentToken: "",
-                orderDetails: OrderDetails(
-                mOrderId: "1234",
-                amount: "100",
-                convenienceFee: "0",
-                quantity: "2",
-                currency: "AED",
-                description: "",
-            ),
-            customerDetails: CustomerDetails(
-                mCustomerId: "123",
-                name: "John Doe",
-                email: "pawan@payorc.com",
-                mobile: "987654321",
-                code: "971",
-            ),
-            billingDetails: BillingDetails(
-                addressLine1: "address 1",
-                addressLine2: "address 2",
-                city: "Amarpur",
-                province: "Bihar",
-                country: "IN",
-                pin: "482008",
-            ),
-            shippingDetails: ShippingDetails(
-                shippingName: "Pawan Kushwaha",
-                shippingEmail: "",
-                shippingCode: "91",
-                shippingMobile: "9876543210",
-                addressLine1: "address 1",
-                addressLine2: "address 2",
-                city: "Jabalpur",
-                province: "Madhya Pradesh",
-                country: "IN",
-                pin: "482005",
-                locationPin: "https://location/somepoint",
-                shippingCurrency: "AED",
-                shippingAmount: "10",
-            ),
-            urls: Urls(
-                success: "",
-                cancel: "",
-                failure: "",
-            ),
+    PayOrcPaymentRequest(
+        data: Data(
+          className: PayOrcClass.ecom.name.toUpperCase(),
+          action: PayOrcAction.sale.name.toUpperCase(),
+          captureMethod: PayOrcCaptureMethod.manual.name.toUpperCase(),
+          paymentToken: "",
+          orderDetails: OrderDetails(
+            mOrderId: "1234",
+            amount: "500",
+            convenienceFee: "0",
+            quantity: "1",
+            currency: "AED",
+            description: "",
+          ),
+          customerDetails: CustomerDetails(
+            mCustomerId: "123",
+            name: "John Doe",
+            email: "pawan@payorc.com",
+            mobile: "987654321",
+            code: "971",
+          ),
+          billingDetails: BillingDetails(
+            addressLine1: "address 1",
+            addressLine2: "address 2",
+            city: "Amarpur",
+            province: "Bihar",
+            country: "IN",
+            pin: "482008",
+          ),
+          shippingDetails: ShippingDetails(
+            shippingName: "Pawan Kushwaha",
+            shippingEmail: "",
+            shippingCode: "91",
+            shippingMobile: "9876543210",
+            addressLine1: "address 1",
+            addressLine2: "address 2",
+            city: "Jabalpur",
+            province: "Madhya Pradesh",
+            country: "IN",
+            pin: "482005",
+            locationPin: "https://location/somepoint",
+            shippingCurrency: "AED",
+            shippingAmount: "10",
+          ),
+          urls: Urls(
+            success: "",
+            cancel: "",
+            failure: "",
+          ),
+          parameters: [
+            {
+              "alpha": "",
+              "beta": "",
+              "gamma": "",
+              "delta": "",
+              "epsilon": "",
+            }
+          ],
+          customData: [
+            {
+              "alpha": "",
+              "beta": "",
+              "gamma": "",
+              "delta": "",
+              "epsilon": "",
+            }
+          ],
         ),
-    );
+    ); 
+
+Note :
+
+* All fields are mandatory
+* When there is no data for a field you should send it as empty String not pass null
+* Here the class, action and capture method are enums
+* Here parameters and customData will be List of HashMap
 
 ## Step 4 : To fetch payment transaction status use p_order_id from create payment response.
 

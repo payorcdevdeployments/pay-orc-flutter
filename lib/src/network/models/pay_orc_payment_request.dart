@@ -35,6 +35,8 @@ class Data {
   final ShippingDetails shippingDetails;
   @JsonKey(name: 'urls')
   final Urls urls;
+  final List<Map<String, dynamic>> parameters;
+  final List<Map<String, dynamic>> customData;
 
   Data({
     required this.className,
@@ -46,6 +48,8 @@ class Data {
     required this.billingDetails,
     required this.shippingDetails,
     required this.urls,
+    required this.parameters,
+    required this.customData,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => _$DataFromJson(json);
