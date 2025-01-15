@@ -8,16 +8,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_pay_orc/src/network/models/pay_orc_payment_transaction_response.dart';
+import 'package:flutter_pay_orc/flutter_pay_orc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'flutter_pay_orc_platform_interface.dart';
-import 'flutter_pay_orc_webview.dart';
 import 'helper/config_memory_holder.dart';
-import 'helper/flutter_pay_orc_environment.dart';
 import 'helper/preference_helper.dart';
 import 'network/flutter_pay_orc_client.dart';
-import 'network/models/pay_orc_payment_request.dart';
 
 class FlutterPayOrc {
   final PreferencesHelper preferenceHelper;
@@ -33,9 +30,8 @@ class FlutterPayOrc {
     configMemoryHolder.envType = envType;
     // Define a map for environment types and their corresponding URLs
     final envUrls = {
-      Environment.development: "https://nodeserver.payorc.com/api/v1",
-      Environment.staging: "https://nodeserver.payorc.com/api/v1",
-      Environment.production: "https://nodeserver.payorc.com/api/v1",
+      Environment.test: "https://nodeserver.payorc.com/api/v1",
+      Environment.live: "https://nodeserver.payorc.com/api/v1",
     };
     // Assign the URL or fallback to an empty string
     configMemoryHolder.paymentUrl = envUrls[envType] ?? "";
@@ -49,14 +45,10 @@ class FlutterPayOrc {
 
   /// Factory constructor for asynchronous initialization
   static Future<FlutterPayOrc> initialize({
-    required String merchantKey,
-    required String merchantSecret,
     required Environment environment,
   }) async {
     final preferences = await SharedPreferences.getInstance();
     final preferenceHelper = PreferencesHelper(preferences);
-    preferenceHelper.merchantKey = merchantKey;
-    preferenceHelper.merchantSecret = merchantSecret;
     _instance = FlutterPayOrc._(
       preferenceHelper: preferenceHelper,
       envType: environment,
@@ -120,10 +112,35 @@ class FlutterPayOrc {
   }
 
   /// To fetch payment transaction
+  Future<void> validateMerchantKeys(
+      {required PayOrcKeysRequest request,
+      required Function(String? message) successResult,
+      required Function(String? message) errorResult}) async {
+    try {
+      final response = await _client.validateMerchantKeys(request);
+      if (response.status == PayOrcStatus.success) {
+        instance.preferenceHelper.merchantKey = request.merchantKey.toString();
+        instance.preferenceHelper.merchantSecret =
+            request.merchantSecret.toString();
+        successResult.call(response.message);
+      } else {
+        errorResult.call(response.message);
+      }
+    } on HttpException catch (e) {
+      errorResult.call(e.message);
+    }
+  }
+
+  /// To fetch payment transaction
   Future<PayOrcPaymentTransactionResponse?> fetchPaymentTransaction(
       {required String orderId,
       required Function(String? message) errorResult}) async {
     try {
+      if (instance.preferenceHelper.merchantKey.isEmpty ||
+          instance.preferenceHelper.merchantSecret.isEmpty) {
+        errorResult.call("Merchant key / secret invalid");
+        return null;
+      }
       final response = await _client.fetchPaymentTransaction(orderId);
       configMemoryHolder.payOrcPaymentTransactionResponse = response;
       return response;
@@ -141,6 +158,11 @@ class FlutterPayOrc {
       required Function(String? message) errorResult,
       required Function(String? pOrderId) onPopResult}) async {
     try {
+      if (instance.preferenceHelper.merchantKey.isEmpty ||
+          instance.preferenceHelper.merchantSecret.isEmpty) {
+        errorResult.call("Merchant key / secret invalid");
+        return;
+      }
       onLoadingResult.call(true);
       final response = await _client.createPayment(request);
       configMemoryHolder.payOrcPaymentResponse = response;

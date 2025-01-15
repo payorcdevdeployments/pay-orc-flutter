@@ -27,14 +27,51 @@ Steps to follow:
 
     void main() {        
         FlutterPayOrc.initialize(
-            merchantKey: 'your-merchant-key', // updated you merchantKey.
-            merchantSecret: 'your-merchant-secret', // updated your merchantSecret.
-            environment: Environment.development, // Switch to Environment.production for live.
+            environment: Environment.test, // Switch to Environment.live for production.
         );    
         runApp(const MyApp());
     }
 
-## Step 2 : Implement createPaymentWithWidget on widget will auto push on view.
+## Step 2 : After init have to validate the merchant key and secret.
+
+    **Method name on sdk:**
+
+    Future<void> validateMerchantKeys(
+      {required PayOrcKeysRequest request,
+      required Function(String? message) successResult,
+      required Function(String? message) errorResult}) async {
+        try {
+          final response = await _client.validateMerchantKeys(request);
+          if (response.status == PayOrcStatus.success) {
+            instance.preferenceHelper.merchantKey = request.merchantKey.toString();
+            instance.preferenceHelper.merchantSecret =
+                request.merchantSecret.toString();
+            successResult.call(response.message);
+          } else {
+            errorResult.call(response.message);
+          }
+        } on HttpException catch (e) {
+          errorResult.call(e.message);
+        }
+    }
+
+    **Method name on app:**
+        
+    await FlutterPayOrc.instance.validateMerchantKeys(
+        request: PayOrcKeysRequest(
+            merchantKey: 'your-merchant-key', // updated you merchantKey.
+            merchantSecret: 'your-merchant-secret', // updated your merchantSecret.
+            env: FlutterPayOrc.instance.configMemoryHolder.envType
+        ),
+        successResult: (message) {
+            on Success SDK will save the merchant key and secrent in preferance.
+            we can show alert if need
+        },
+        errorResult: (message) {
+            on Error we can show alert if need
+        });
+
+## Step 3 : Implement createPaymentWithWidget on widget will auto push on view.
 
     **Method name on sdk:**
 
@@ -67,21 +104,21 @@ Steps to follow:
     **To call this method on app:**
 
     await FlutterPayOrc.instance.createPaymentWithWidget(
-                    context: context,
-                    request: createPayOrcPaymentRequest(),
-                    onPopResult: (String? pOrderId) async {
-                      await _fetchTransaction(pOrderId);
-                    },
-                    errorResult: (message) {
-                      debugPrint('errorResult $message');
-                    },
-                    onLoadingResult: (bool success) {
-                      setState(() {
-                        loading = success;
-                      });
-                    });
+        context: context,
+        request: createPayOrcPaymentRequest(),
+        onPopResult: (String? pOrderId) async {
+          await _fetchTransaction(pOrderId);
+        },
+        errorResult: (message) {
+          debugPrint('errorResult $message');
+        },
+        onLoadingResult: (bool success) {
+          setState(() {
+            loading = success;
+          });
+        });
 
-## Step 3 : payment request object reference.
+## Step 4 : payment request object reference.
 
     PayOrcPaymentRequest(
         data: Data(
@@ -160,14 +197,19 @@ Note :
 * Here the class, action and capture method are enums
 * Here parameters and customData will be List of HashMap
 
-## Step 4 : To fetch payment transaction status use p_order_id from create payment response.
+## Step 5 : To fetch payment transaction status use p_order_id from create payment response.
 
     **Method name on sdk:**
 
     Future<PayOrcPaymentTransactionResponse?> fetchPaymentTransaction(
-          {required String orderId,
-          required Function(String? message) errorResult}) async {
+      {required String orderId,
+      required Function(String? message) errorResult}) async {
         try {
+          if (instance.preferenceHelper.merchantKey.isEmpty ||
+              instance.preferenceHelper.merchantSecret.isEmpty) {
+            errorResult.call("Merchant key / secret invalid");
+            return null;
+          }
           final response = await _client.fetchPaymentTransaction(orderId);
           configMemoryHolder.payOrcPaymentTransactionResponse = response;
           return response;
@@ -180,13 +222,18 @@ Note :
     **To call this method on app:**
 
     final transaction = await FlutterPayOrc.instance.fetchPaymentTransaction(
-          orderId: pOrderId.toString(),
-          errorResult: (message) {
-            debugPrint('errorResult $message');
-          },
-        );
+      orderId: pOrderId.toString(),
+      errorResult: (message) {
+        debugPrint('errorResult $message');
+        _showErrorAlert(context, message);
+      },
+    );
+    if (transaction != null) {
+      debugPrint('transaction ${transaction.toJson()}');
+      FlutterPayOrc.instance.clearData();
+    }
 
-## Step 5 : To clear data call following method.
+## Step 6 : To clear data call following method.
 
     **Method name on sdk:**
     

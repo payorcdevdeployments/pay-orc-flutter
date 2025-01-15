@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_pay_orc/src/helper/api_paths.dart';
 import 'package:flutter_pay_orc/src/network/models/pay_orc_error.dart';
+import 'package:flutter_pay_orc/src/network/models/pay_orc_keys_request.dart';
+import 'package:flutter_pay_orc/src/network/models/pay_orc_keys_valid.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import 'models/pay_orc_payment_request.dart';
@@ -37,6 +39,31 @@ class FlutterPayOrcClient {
       error: kDebugMode,
       compact: kDebugMode,
     ));
+  }
+
+  /// Api to validate merchant keys
+  Future<PayOrcKeysValid> validateMerchantKeys(
+      PayOrcKeysRequest request) async {
+    try {
+      Map requestData = request.toJson();
+      final response = await _dio.post(
+        ApiPaths.URL_CHECK_KEYS,
+        data: jsonEncode(requestData),
+      );
+      if (response.statusCode == 200) {
+        return PayOrcKeysValid.fromJson(response.data);
+      } else {
+        throw HttpException('Failed to create order request');
+      }
+    } on DioException catch (e) {
+      // Handle Dio-specific errors
+      if (e.response != null) {
+        final payOrcError = PayOrcError.fromJson(e.response!.data);
+        throw HttpException('${payOrcError.message}');
+      } else {
+        throw HttpException('${e.message}');
+      }
+    }
   }
 
   /// Api to create payment

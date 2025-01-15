@@ -14,3 +14,9 @@
 ## 0.0.4
 
 * Updated payment request model
+
+## 0.0.5
+
+* Updated SDK init method
+* Added verify merchant key / secret
+* Updated README
