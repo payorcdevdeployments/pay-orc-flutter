@@ -35,7 +35,7 @@ Data _$DataFromJson(Map<String, dynamic> json) => Data(
       parameters: (json['parameters'] as List<dynamic>)
           .map((e) => e as Map<String, dynamic>)
           .toList(),
-      customData: (json['customData'] as List<dynamic>)
+      customData: (json['custom_data'] as List<dynamic>)
           .map((e) => e as Map<String, dynamic>)
           .toList(),
     );
@@ -51,7 +51,7 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
       'shipping_details': instance.shippingDetails.toJson(),
       'urls': instance.urls.toJson(),
       'parameters': instance.parameters,
-      'customData': instance.customData,
+      'custom_data': instance.customData,
     };
 
 OrderDetails _$OrderDetailsFromJson(Map<String, dynamic> json) => OrderDetails(

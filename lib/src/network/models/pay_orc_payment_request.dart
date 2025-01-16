@@ -35,7 +35,9 @@ class Data {
   final ShippingDetails shippingDetails;
   @JsonKey(name: 'urls')
   final Urls urls;
+  @JsonKey(name: 'parameters')
   final List<Map<String, dynamic>> parameters;
+  @JsonKey(name: 'custom_data')
   final List<Map<String, dynamic>> customData;
 
   Data({
