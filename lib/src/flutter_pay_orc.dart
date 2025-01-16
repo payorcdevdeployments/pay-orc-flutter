@@ -34,11 +34,10 @@ class FlutterPayOrc {
       Environment.live: "https://nodeserver.payorc.com/api/v1",
     };
     // Assign the URL or fallback to an empty string
-    configMemoryHolder.paymentUrl = envUrls[envType] ?? "";
+    configMemoryHolder.baseUrl = envUrls[envType] ?? "";
     _client = FlutterPayOrcClient(
-        merchantKey: preferenceHelper.merchantKey,
-        merchantSecret: preferenceHelper.merchantSecret,
-        paymentBaseUrl: configMemoryHolder.paymentUrl!);
+        paymentBaseUrl: configMemoryHolder.baseUrl!,
+        preferenceHelper: preferenceHelper);
   }
 
   static FlutterPayOrc? _instance;
@@ -87,23 +86,13 @@ class FlutterPayOrc {
   }
 
   /// Returns the current merchant secret (a random GUID assigned to the app running on the device)
-  String getMerchantSecret() {
-    return preferenceHelper.merchantSecret;
-  }
-
-  /// Sets the merchant secret
-  void setMerchantSecret(String merchantSecret) {
-    preferenceHelper.merchantSecret = merchantSecret;
+  Future<String?> getMerchantSecret() async {
+    return await preferenceHelper.getMerchantSecret();
   }
 
   /// Returns the current merchant key (a random GUID assigned to the app running on the device)
-  String getMerchantKey() {
-    return preferenceHelper.merchantKey;
-  }
-
-  /// Sets the merchant key
-  void setMerchantKey(String merchantKey) {
-    preferenceHelper.merchantKey = merchantKey;
+  Future<String?> getMerchantKey() async {
+    return await preferenceHelper.getMerchantKey();
   }
 
   /// Clear preference data
@@ -119,9 +108,10 @@ class FlutterPayOrc {
     try {
       final response = await _client.validateMerchantKeys(request);
       if (response.status == PayOrcStatus.success) {
-        instance.preferenceHelper.merchantKey = request.merchantKey.toString();
-        instance.preferenceHelper.merchantSecret =
-            request.merchantSecret.toString();
+        await instance.preferenceHelper
+            .saveMerchantKey(request.merchantKey.toString());
+        await instance.preferenceHelper
+            .saveMerchantSecret(request.merchantSecret.toString());
         successResult.call(response.message);
       } else {
         errorResult.call(response.message);
@@ -136,8 +126,11 @@ class FlutterPayOrc {
       {required String orderId,
       required Function(String? message) errorResult}) async {
     try {
-      if (instance.preferenceHelper.merchantKey.isEmpty ||
-          instance.preferenceHelper.merchantSecret.isEmpty) {
+      final merchantKey = await instance.preferenceHelper.getMerchantKey();
+      final merchantSecret =
+          await instance.preferenceHelper.getMerchantSecret();
+
+      if (merchantKey == null || merchantSecret == null) {
         errorResult.call("Merchant key / secret invalid");
         return null;
       }
@@ -158,8 +151,11 @@ class FlutterPayOrc {
       required Function(String? message) errorResult,
       required Function(String? pOrderId) onPopResult}) async {
     try {
-      if (instance.preferenceHelper.merchantKey.isEmpty ||
-          instance.preferenceHelper.merchantSecret.isEmpty) {
+      final merchantKey = await instance.preferenceHelper.getMerchantKey();
+      final merchantSecret =
+          await instance.preferenceHelper.getMerchantSecret();
+
+      if (merchantKey == null || merchantSecret == null) {
         errorResult.call("Merchant key / secret invalid");
         return;
       }

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_pay_orc/src/helper/api_paths.dart';
+import 'package:flutter_pay_orc/src/helper/preference_helper.dart';
 import 'package:flutter_pay_orc/src/network/models/pay_orc_error.dart';
 import 'package:flutter_pay_orc/src/network/models/pay_orc_keys_request.dart';
 import 'package:flutter_pay_orc/src/network/models/pay_orc_keys_valid.dart';
@@ -16,18 +17,16 @@ import 'models/pay_orc_payment_transaction_response.dart';
 class FlutterPayOrcClient {
   final Dio _dio;
 
+  final PreferencesHelper preferenceHelper;
+
   /// Dio client initialisation
   FlutterPayOrcClient(
-      {required String merchantKey,
-      required String merchantSecret,
-      required String paymentBaseUrl})
+      {required String paymentBaseUrl, required this.preferenceHelper})
       : _dio = Dio(BaseOptions(
             baseUrl: paymentBaseUrl,
             connectTimeout: const Duration(seconds: 60),
             receiveTimeout: const Duration(seconds: 60),
             headers: {
-              'merchant-key': merchantKey,
-              'merchant-secret': merchantSecret,
               'Content-Type': 'application/json',
             })) {
     // Add logging interceptor
@@ -39,6 +38,31 @@ class FlutterPayOrcClient {
       error: kDebugMode,
       compact: kDebugMode,
     ));
+
+    _registerInterceptor();
+  }
+
+  void _registerInterceptor() {
+    _dio.interceptors.add(
+      InterceptorsWrapper(onRequest: (options, handler) async {
+        final merchantKey = await preferenceHelper.getMerchantKey();
+        final merchantSecret = await preferenceHelper.getMerchantSecret();
+
+        if (merchantKey != null && merchantSecret != null) {
+          final Map<String, String> headers = <String, String>{
+            'merchant-key': merchantKey,
+            'merchant-secret': merchantSecret,
+          };
+          options.headers.addAll(headers);
+        }
+        handler.next(options);
+      }, onResponse:
+          (Response<dynamic> response, ResponseInterceptorHandler handler) {
+        return handler.next(response); // continue
+      }, onError: (DioException e, ErrorInterceptorHandler handler) {
+        return handler.next(e); //continue
+      }),
+    );
   }
 
   /// Api to validate merchant keys

@@ -43,9 +43,10 @@ Steps to follow:
         try {
           final response = await _client.validateMerchantKeys(request);
           if (response.status == PayOrcStatus.success) {
-            instance.preferenceHelper.merchantKey = request.merchantKey.toString();
-            instance.preferenceHelper.merchantSecret =
-                request.merchantSecret.toString();
+            await instance.preferenceHelper
+                .saveMerchantKey(request.merchantKey.toString());
+            await instance.preferenceHelper
+                .saveMerchantSecret(request.merchantSecret.toString());
             successResult.call(response.message);
           } else {
             errorResult.call(response.message);
@@ -82,6 +83,14 @@ Steps to follow:
               required Function(String? message) errorResult,
               required Function(String? pOrderId) onPopResult}) async {
             try {
+               final merchantKey = await instance.preferenceHelper.getMerchantKey();
+               final merchantSecret =
+               await instance.preferenceHelper.getMerchantSecret();
+                
+              if (merchantKey == null || merchantSecret == null) {
+                errorResult.call("Merchant key / secret invalid");
+                return;
+              }
               onLoadingResult.call(true);
               final response = await _client.createPayment(request);
               configMemoryHolder.payOrcPaymentResponse = response;
@@ -172,18 +181,34 @@ Steps to follow:
           parameters: [
             {
               "alpha": "",
+            },
+            {
               "beta": "",
+            },
+            {
               "gamma": "",
+            },
+            {
               "delta": "",
+            },
+            {
               "epsilon": "",
             }
           ],
           customData: [
             {
               "alpha": "",
+            },
+            {
               "beta": "",
+            },
+            {
               "gamma": "",
+            },
+            {
               "delta": "",
+            },
+            {
               "epsilon": "",
             }
           ],
@@ -205,10 +230,13 @@ Note :
       {required String orderId,
       required Function(String? message) errorResult}) async {
         try {
-          if (instance.preferenceHelper.merchantKey.isEmpty ||
-              instance.preferenceHelper.merchantSecret.isEmpty) {
+          final merchantKey = await instance.preferenceHelper.getMerchantKey();
+          final merchantSecret =
+              await instance.preferenceHelper.getMerchantSecret();
+    
+          if (merchantKey == null || merchantSecret == null) {
             errorResult.call("Merchant key / secret invalid");
-            return null;
+            return;
           }
           final response = await _client.fetchPaymentTransaction(orderId);
           configMemoryHolder.payOrcPaymentTransactionResponse = response;

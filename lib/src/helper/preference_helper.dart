@@ -6,20 +6,27 @@ class PreferencesHelper {
   PreferencesHelper(this.preferences);
 
   // Keys
-  static const String PREF_MERCHENT_KEY = "merchant_key";
-  static const String PREF_MERCHENT_SECRET = "merchant_secret";
+  static const String PREF_MERCHANT_KEY = "merchant_key";
+  static const String PREF_MERCHANT_SECRET = "merchant_secret";
 
   // Getters and Setters
-  String get merchantKey => preferences.getString(PREF_MERCHENT_KEY) ?? "";
 
-  set merchantKey(String value) =>
-      preferences.setString(PREF_MERCHENT_KEY, value);
+  Future<String?> getMerchantKey() {
+    return Future<String?>.sync(() => preferences.getString(PREF_MERCHANT_KEY));
+  }
 
-  String get merchantSecret =>
-      preferences.getString(PREF_MERCHENT_SECRET) ?? "";
+  Future<void> saveMerchantKey(String content) async {
+    await preferences.setString(PREF_MERCHANT_KEY, content);
+  }
 
-  set merchantSecret(String value) =>
-      preferences.setString(PREF_MERCHENT_SECRET, value);
+  Future<String?> getMerchantSecret() {
+    return Future<String?>.sync(
+        () => preferences.getString(PREF_MERCHANT_SECRET));
+  }
+
+  Future<void> saveMerchantSecret(String content) async {
+    await preferences.setString(PREF_MERCHANT_SECRET, content);
+  }
 
   Future<void> clear() async {
     await preferences.clear();

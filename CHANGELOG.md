@@ -20,3 +20,8 @@
 * Updated SDK init method
 * Added verify merchant key / secret
 * Updated README
+
+## 0.0.6
+
+* Updated verify merchant key / secret
+* Updated README

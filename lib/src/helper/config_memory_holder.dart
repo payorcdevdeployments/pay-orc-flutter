@@ -14,7 +14,7 @@ class ConfigMemoryHolder {
   Environment? envType;
 
   /// The payment url.
-  String? paymentUrl;
+  String? baseUrl;
 
   /// The payment object ref.
   PayOrcPaymentResponse? payOrcPaymentResponse;
