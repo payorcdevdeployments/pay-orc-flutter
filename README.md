@@ -139,18 +139,21 @@ Note :
 
     final transaction = await FlutterPayOrc.instance.fetchPaymentTransaction(
       orderId: pOrderId.toString(),
+      onLoadingResult: (loading) {
+          // manage loading with this bool value
+      },
       errorResult: (message) {
-        debugPrint('errorResult $message');
-        _showErrorAlert(context, message);
+          // display alert for the users
       },
     );
     if (transaction != null) {
-      debugPrint('transaction ${transaction.toJson()}');
+      // update transaction information to merchant server
+
       FlutterPayOrc.instance.clearData();
     }
 
-## Step 5 : To clear data call following method.
-    
+## Step 5 : To clear local data call following method.
+
     **To call this method on app:**
     
     FlutterPayOrc.instance.clearData();

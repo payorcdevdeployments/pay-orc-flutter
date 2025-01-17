@@ -108,8 +108,10 @@ class FlutterPayOrc {
   /// To fetch payment transaction
   Future<PayOrcPaymentTransactionResponse?> fetchPaymentTransaction(
       {required String orderId,
+      required Function(bool loading) onLoadingResult,
       required Function(String? message) errorResult}) async {
     try {
+      onLoadingResult.call(true);
       if (configMemoryHolder.payOrcKeysValid?.status == PayOrcStatus.success) {
         final response = await _client.fetchPaymentTransaction(orderId);
         configMemoryHolder.payOrcPaymentTransactionResponse = response;
@@ -140,6 +142,8 @@ class FlutterPayOrc {
       }
       errorResult.call(e.message);
       return null;
+    } finally {
+      onLoadingResult.call(false);
     }
   }
 
