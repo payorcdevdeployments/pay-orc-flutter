@@ -77,15 +77,18 @@ class FlutterPayOrcClient {
       if (response.statusCode == 200) {
         return PayOrcKeysValid.fromJson(response.data);
       } else {
-        throw HttpException('Failed to create order request');
+        throw HttpException('Failed to validate merchant keys',
+            uri: Uri.parse(ApiPaths.URL_CHECK_KEYS));
       }
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {
         final payOrcError = PayOrcError.fromJson(e.response!.data);
-        throw HttpException('${payOrcError.message}');
+        throw HttpException('${payOrcError.message}',
+            uri: Uri.parse(ApiPaths.URL_CHECK_KEYS));
       } else {
-        throw HttpException('${e.message}');
+        throw HttpException('${e.message}',
+            uri: Uri.parse(ApiPaths.URL_CHECK_KEYS));
       }
     }
   }
@@ -102,15 +105,18 @@ class FlutterPayOrcClient {
       if (response.statusCode == 200) {
         return PayOrcPaymentResponse.fromJson(response.data);
       } else {
-        throw HttpException('Failed to create order request');
+        throw HttpException('Failed to create order request',
+            uri: Uri.parse(ApiPaths.URL_CREATE_PAYMENT));
       }
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {
         final payOrcError = PayOrcError.fromJson(e.response!.data);
-        throw HttpException('${payOrcError.message}');
+        throw HttpException('${payOrcError.message}',
+            uri: Uri.parse(ApiPaths.URL_CREATE_PAYMENT));
       } else {
-        throw HttpException('${e.message}');
+        throw HttpException('${e.message}',
+            uri: Uri.parse(ApiPaths.URL_CREATE_PAYMENT));
       }
     }
   }
@@ -126,15 +132,18 @@ class FlutterPayOrcClient {
       if (response.statusCode == 200) {
         return PayOrcPaymentTransactionResponse.fromJson(response.data);
       } else {
-        throw HttpException('Failed to fetch transaction');
+        throw HttpException('Failed to fetch transaction details',
+            uri: Uri.parse(ApiPaths.URL_PAYMENT_TRANSACTION));
       }
     } on DioException catch (e) {
       // Handle Dio-specific errors
       if (e.response != null) {
         final payOrcError = PayOrcError.fromJson(e.response!.data);
-        throw HttpException('${payOrcError.message}');
+        throw HttpException('${payOrcError.message}',
+            uri: Uri.parse(ApiPaths.URL_PAYMENT_TRANSACTION));
       } else {
-        throw HttpException('${e.message}');
+        throw HttpException('${e.message}',
+            uri: Uri.parse(ApiPaths.URL_PAYMENT_TRANSACTION));
       }
     }
   }

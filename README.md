@@ -21,89 +21,7 @@ Steps to follow:
         runApp(const MyApp());
     }
 
-## Step 2 : After init have to validate the merchant key and secret.
-
-    **Method name on sdk:**
-
-    Future<void> validateMerchantKeys(
-      {required PayOrcKeysRequest request,
-      required Function(String? message) successResult,
-      required Function(String? message) errorResult}) async {
-        try {
-          final response = await _client.validateMerchantKeys(request);
-          if (response.status == PayOrcStatus.success) {
-            await instance.preferenceHelper
-                .saveMerchantKey(request.merchantKey.toString());
-            await instance.preferenceHelper
-                .saveMerchantSecret(request.merchantSecret.toString());
-            successResult.call(response.message);
-          } else {
-            errorResult.call(response.message);
-          }
-        } on HttpException catch (e) {
-          errorResult.call(e.message);
-        }
-    }
-
-    **Method name on app:**
-        
-    await FlutterPayOrc.instance.validateMerchantKeys(
-        request: PayOrcKeysRequest(
-            merchantKey: 'your-merchant-key', // updated you merchantKey.
-            merchantSecret: 'your-merchant-secret', // updated your merchantSecret.
-            env: FlutterPayOrc.instance.configMemoryHolder.envType
-        ),
-        successResult: (message) {
-            on Success SDK will save the merchant key and secrent in preferance.
-            we can show alert if need
-        },
-        errorResult: (message) {
-            on Error we can show alert if need
-        });
-
-## Step 3 : Implement createPaymentWithWidget on widget will auto push on view.
-
-    **Method name on sdk:**
-    
-    /// To create payment with widget
-    Future<void> createPaymentWithWidget(
-        {required BuildContext context,
-        required PayOrcPaymentRequest request,
-        required Function(bool loading) onLoadingResult,
-        required Function(String? message) errorResult,
-        required Function(String? pOrderId) onPopResult}) async {
-    try {
-        onLoadingResult.call(true);
-    
-          final merchantKey = await preferenceHelper.getMerchantKey();
-          final merchantSecret = await preferenceHelper.getMerchantSecret();
-    
-          final validate = await _client.validateMerchantKeys(PayOrcKeysRequest(
-              merchantKey: merchantKey,
-              merchantSecret: merchantSecret,
-              env: configMemoryHolder.environment));
-    
-          if (validate.status == PayOrcStatus.success) {
-            final response = await _client.createPayment(request);
-            configMemoryHolder.payOrcPaymentResponse = response;
-            final paymentUrl = configMemoryHolder.payOrcPaymentResponse?.iframeLink;
-            if (context.mounted) {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => PayOrcWebView(
-                        paymentUrl: paymentUrl!,
-                        onPopResult: onPopResult,
-                      )));
-            }
-          } else {
-            errorResult.call(validate.message ?? "Merchant key / secret invalid");
-            return;
-          }
-        } on HttpException catch (e) {
-          errorResult.call(e.message);
-        } finally {
-          onLoadingResult.call(false);
-        }
-    }
+## Step 2 : Implement createPaymentWithWidget on widget will auto push on view.
 
     **To call this method on app:**
 
@@ -114,15 +32,13 @@ Steps to follow:
           await _fetchTransaction(pOrderId);
         },
         errorResult: (message) {
-          debugPrint('errorResult $message');
+          // display alert for the users
         },
         onLoadingResult: (bool success) {
-          setState(() {
-            loading = success;
-          });
+          // manage loading with this bool value
         });
 
-## Step 4 : payment request object reference.
+## Step 3 : payment request object reference.
 
     PayOrcPaymentRequest(
         data: Data(
@@ -217,35 +133,7 @@ Note :
 * Here the class, action and capture method are enums
 * Here parameters and customData will be List of HashMap
 
-## Step 5 : To fetch payment transaction status use p_order_id from create payment response.
-
-    **Method name on sdk:**
-
-    Future<PayOrcPaymentTransactionResponse?> fetchPaymentTransaction(
-      {required String orderId,
-      required Function(String? message) errorResult}) async {
-        try {
-          final merchantKey = await preferenceHelper.getMerchantKey();
-          final merchantSecret = await preferenceHelper.getMerchantSecret();
-    
-          final validate = await _client.validateMerchantKeys(PayOrcKeysRequest(
-              merchantKey: merchantKey,
-              merchantSecret: merchantSecret,
-              env: configMemoryHolder.environment));
-    
-          if (validate.status == PayOrcStatus.success) {
-            final response = await _client.fetchPaymentTransaction(orderId);
-            configMemoryHolder.payOrcPaymentTransactionResponse = response;
-            return response;
-          } else {
-            errorResult.call(validate.message ?? "Merchant key / secret invalid");
-            return null;
-          }
-        } on HttpException catch (e) {
-          errorResult.call(e.message);
-          return null;
-        }
-    }
+## Step 4 : To fetch payment transaction status use p_order_id from create payment response.
 
     **To call this method on app:**
 
@@ -261,13 +149,7 @@ Note :
       FlutterPayOrc.instance.clearData();
     }
 
-## Step 6 : To clear data call following method.
-
-    **Method name on sdk:**
-    
-    void clearData() {
-        instance.configMemoryHolder = ConfigMemoryHolder();
-    }
+## Step 5 : To clear data call following method.
     
     **To call this method on app:**
     

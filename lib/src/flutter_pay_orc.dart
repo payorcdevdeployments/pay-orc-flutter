@@ -9,6 +9,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_pay_orc/flutter_pay_orc.dart';
+import 'package:flutter_pay_orc/src/helper/api_paths.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'flutter_pay_orc_platform_interface.dart';
@@ -109,23 +110,34 @@ class FlutterPayOrc {
       {required String orderId,
       required Function(String? message) errorResult}) async {
     try {
-      final merchantKey = await preferenceHelper.getMerchantKey();
-      final merchantSecret = await preferenceHelper.getMerchantSecret();
-
-      final validate = await _client.validateMerchantKeys(PayOrcKeysRequest(
-          merchantKey: merchantKey,
-          merchantSecret: merchantSecret,
-          env: configMemoryHolder.environment));
-
-      if (validate.status == PayOrcStatus.success) {
+      if (configMemoryHolder.payOrcKeysValid?.status == PayOrcStatus.success) {
         final response = await _client.fetchPaymentTransaction(orderId);
         configMemoryHolder.payOrcPaymentTransactionResponse = response;
         return response;
       } else {
-        errorResult.call(validate.message ?? "Merchant key / secret invalid");
-        return null;
+        final merchantKey = await preferenceHelper.getMerchantKey();
+        final merchantSecret = await preferenceHelper.getMerchantSecret();
+
+        final validate = await _client.validateMerchantKeys(PayOrcKeysRequest(
+            merchantKey: merchantKey,
+            merchantSecret: merchantSecret,
+            env: configMemoryHolder.environment));
+
+        if (validate.status == PayOrcStatus.success) {
+          configMemoryHolder.payOrcKeysValid = validate;
+          final response = await _client.fetchPaymentTransaction(orderId);
+          configMemoryHolder.payOrcPaymentTransactionResponse = response;
+          return response;
+        } else {
+          configMemoryHolder.payOrcKeysValid = null;
+          errorResult.call(validate.message ?? "Merchant key / secret invalid");
+          return null;
+        }
       }
     } on HttpException catch (e) {
+      if (e.uri?.path.contains(ApiPaths.URL_CHECK_KEYS) == true) {
+        configMemoryHolder.payOrcKeysValid = null;
+      }
       errorResult.call(e.message);
       return null;
     }
@@ -140,16 +152,7 @@ class FlutterPayOrc {
       required Function(String? pOrderId) onPopResult}) async {
     try {
       onLoadingResult.call(true);
-
-      final merchantKey = await preferenceHelper.getMerchantKey();
-      final merchantSecret = await preferenceHelper.getMerchantSecret();
-
-      final validate = await _client.validateMerchantKeys(PayOrcKeysRequest(
-          merchantKey: merchantKey,
-          merchantSecret: merchantSecret,
-          env: configMemoryHolder.environment));
-
-      if (validate.status == PayOrcStatus.success) {
+      if (configMemoryHolder.payOrcKeysValid?.status == PayOrcStatus.success) {
         final response = await _client.createPayment(request);
         configMemoryHolder.payOrcPaymentResponse = response;
         final paymentUrl = configMemoryHolder.payOrcPaymentResponse?.iframeLink;
@@ -161,10 +164,36 @@ class FlutterPayOrc {
                   )));
         }
       } else {
-        errorResult.call(validate.message ?? "Merchant key / secret invalid");
-        return;
+        final merchantKey = await preferenceHelper.getMerchantKey();
+        final merchantSecret = await preferenceHelper.getMerchantSecret();
+
+        final validate = await _client.validateMerchantKeys(PayOrcKeysRequest(
+            merchantKey: merchantKey,
+            merchantSecret: merchantSecret,
+            env: configMemoryHolder.environment));
+
+        if (validate.status == PayOrcStatus.success) {
+          final response = await _client.createPayment(request);
+          configMemoryHolder.payOrcPaymentResponse = response;
+          final paymentUrl =
+              configMemoryHolder.payOrcPaymentResponse?.iframeLink;
+          if (context.mounted) {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => PayOrcWebView(
+                      paymentUrl: paymentUrl!,
+                      onPopResult: onPopResult,
+                    )));
+          }
+        } else {
+          configMemoryHolder.payOrcKeysValid = null;
+          errorResult.call(validate.message ?? "Merchant key / secret invalid");
+          return;
+        }
       }
     } on HttpException catch (e) {
+      if (e.uri?.path.contains(ApiPaths.URL_CHECK_KEYS) == true) {
+        configMemoryHolder.payOrcKeysValid = null;
+      }
       errorResult.call(e.message);
     } finally {
       onLoadingResult.call(false);

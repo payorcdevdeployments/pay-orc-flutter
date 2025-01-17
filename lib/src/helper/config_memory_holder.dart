@@ -22,5 +22,8 @@ class ConfigMemoryHolder {
   /// The payment object ref.
   PayOrcPaymentTransactionResponse? payOrcPaymentTransactionResponse;
 
+  /// Merchant keys valid ref
+  PayOrcKeysValid? payOrcKeysValid;
+
   ConfigMemoryHolder();
 }
