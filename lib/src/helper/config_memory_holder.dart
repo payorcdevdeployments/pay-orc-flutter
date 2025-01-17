@@ -11,7 +11,7 @@ class ConfigMemoryHolder {
   String? checkOutId;
 
   /// The Environment Type.
-  Environment? envType;
+  Environment? environment;
 
   /// The payment url.
   String? baseUrl;

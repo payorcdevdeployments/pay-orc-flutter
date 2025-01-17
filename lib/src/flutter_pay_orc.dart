@@ -26,15 +26,15 @@ class FlutterPayOrc {
   }
 
   FlutterPayOrc._(
-      {required this.preferenceHelper, required Environment envType}) {
-    configMemoryHolder.envType = envType;
+      {required this.preferenceHelper, required Environment environment}) {
+    configMemoryHolder.environment = environment;
     // Define a map for environment types and their corresponding URLs
     final envUrls = {
       Environment.test: "https://nodeserver.payorc.com/api/v1",
       Environment.live: "https://nodeserver.payorc.com/api/v1",
     };
     // Assign the URL or fallback to an empty string
-    configMemoryHolder.baseUrl = envUrls[envType] ?? "";
+    configMemoryHolder.baseUrl = envUrls[environment] ?? "";
     _client = FlutterPayOrcClient(
         paymentBaseUrl: configMemoryHolder.baseUrl!,
         preferenceHelper: preferenceHelper);
@@ -45,12 +45,16 @@ class FlutterPayOrc {
   /// Factory constructor for asynchronous initialization
   static Future<FlutterPayOrc> initialize({
     required Environment environment,
+    required String merchantKey,
+    required String merchantSecret,
   }) async {
     final preferences = await SharedPreferences.getInstance();
     final preferenceHelper = PreferencesHelper(preferences);
+    await preferenceHelper.saveMerchantKey(merchantKey);
+    await preferenceHelper.saveMerchantSecret(merchantSecret);
     _instance = FlutterPayOrc._(
       preferenceHelper: preferenceHelper,
-      envType: environment,
+      environment: environment,
     );
     return _instance!;
   }
@@ -101,42 +105,26 @@ class FlutterPayOrc {
   }
 
   /// To fetch payment transaction
-  Future<void> validateMerchantKeys(
-      {required PayOrcKeysRequest request,
-      required Function(String? message) successResult,
-      required Function(String? message) errorResult}) async {
-    try {
-      final response = await _client.validateMerchantKeys(request);
-      if (response.status == PayOrcStatus.success) {
-        await instance.preferenceHelper
-            .saveMerchantKey(request.merchantKey.toString());
-        await instance.preferenceHelper
-            .saveMerchantSecret(request.merchantSecret.toString());
-        successResult.call(response.message);
-      } else {
-        errorResult.call(response.message);
-      }
-    } on HttpException catch (e) {
-      errorResult.call(e.message);
-    }
-  }
-
-  /// To fetch payment transaction
   Future<PayOrcPaymentTransactionResponse?> fetchPaymentTransaction(
       {required String orderId,
       required Function(String? message) errorResult}) async {
     try {
-      final merchantKey = await instance.preferenceHelper.getMerchantKey();
-      final merchantSecret =
-          await instance.preferenceHelper.getMerchantSecret();
+      final merchantKey = await preferenceHelper.getMerchantKey();
+      final merchantSecret = await preferenceHelper.getMerchantSecret();
 
-      if (merchantKey == null || merchantSecret == null) {
-        errorResult.call("Merchant key / secret invalid");
+      final validate = await _client.validateMerchantKeys(PayOrcKeysRequest(
+          merchantKey: merchantKey,
+          merchantSecret: merchantSecret,
+          env: configMemoryHolder.environment));
+
+      if (validate.status == PayOrcStatus.success) {
+        final response = await _client.fetchPaymentTransaction(orderId);
+        configMemoryHolder.payOrcPaymentTransactionResponse = response;
+        return response;
+      } else {
+        errorResult.call(validate.message ?? "Merchant key / secret invalid");
         return null;
       }
-      final response = await _client.fetchPaymentTransaction(orderId);
-      configMemoryHolder.payOrcPaymentTransactionResponse = response;
-      return response;
     } on HttpException catch (e) {
       errorResult.call(e.message);
       return null;
@@ -151,25 +139,30 @@ class FlutterPayOrc {
       required Function(String? message) errorResult,
       required Function(String? pOrderId) onPopResult}) async {
     try {
-      final merchantKey = await instance.preferenceHelper.getMerchantKey();
-      final merchantSecret =
-          await instance.preferenceHelper.getMerchantSecret();
-
-      if (merchantKey == null || merchantSecret == null) {
-        errorResult.call("Merchant key / secret invalid");
-        return;
-      }
       onLoadingResult.call(true);
-      final response = await _client.createPayment(request);
-      configMemoryHolder.payOrcPaymentResponse = response;
-      final paymentUrl =
-          instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
-      if (context.mounted) {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => PayOrcWebView(
-                  paymentUrl: paymentUrl!,
-                  onPopResult: onPopResult,
-                )));
+
+      final merchantKey = await preferenceHelper.getMerchantKey();
+      final merchantSecret = await preferenceHelper.getMerchantSecret();
+
+      final validate = await _client.validateMerchantKeys(PayOrcKeysRequest(
+          merchantKey: merchantKey,
+          merchantSecret: merchantSecret,
+          env: configMemoryHolder.environment));
+
+      if (validate.status == PayOrcStatus.success) {
+        final response = await _client.createPayment(request);
+        configMemoryHolder.payOrcPaymentResponse = response;
+        final paymentUrl = configMemoryHolder.payOrcPaymentResponse?.iframeLink;
+        if (context.mounted) {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => PayOrcWebView(
+                    paymentUrl: paymentUrl!,
+                    onPopResult: onPopResult,
+                  )));
+        }
+      } else {
+        errorResult.call(validate.message ?? "Merchant key / secret invalid");
+        return;
       }
     } on HttpException catch (e) {
       errorResult.call(e.message);

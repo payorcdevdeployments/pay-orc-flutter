@@ -6,20 +6,7 @@ A Flutter plugin for orc payment.
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/to/develop-plugins),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-The plugin project was generated without specifying the `--platforms` flag, no platforms are
-currently supported.
-To add platforms, run `flutter create -t plugin --platforms <platforms> .` in this directory.
-You can also find a detailed instruction on how to add platforms in the `pubspec.yaml`
-at https://flutter.dev/to/pubspec-plugin-platforms.
+About SDK
 
 Steps to follow:
 
@@ -27,8 +14,10 @@ Steps to follow:
 
     void main() {        
         FlutterPayOrc.initialize(
-            environment: Environment.test, // Switch to Environment.live for production.
-        );    
+            merchantKey: 'your-merchant-key', // updated you merchantKey.
+            merchantSecret: 'your-merchant-secret', // updated your merchantSecret.
+            environment: Environment.test, // Switch to Environment.production for live
+        );
         runApp(const MyApp());
     }
 
@@ -75,40 +64,46 @@ Steps to follow:
 ## Step 3 : Implement createPaymentWithWidget on widget will auto push on view.
 
     **Method name on sdk:**
-
-        Future<void> createPaymentWithWidget(
-              {required BuildContext context,
-              required PayOrcPaymentRequest request,
-              required Function(bool loading) onLoadingResult,
-              required Function(String? message) errorResult,
-              required Function(String? pOrderId) onPopResult}) async {
-            try {
-               final merchantKey = await instance.preferenceHelper.getMerchantKey();
-               final merchantSecret =
-               await instance.preferenceHelper.getMerchantSecret();
-                
-              if (merchantKey == null || merchantSecret == null) {
-                errorResult.call("Merchant key / secret invalid");
-                return;
-              }
-              onLoadingResult.call(true);
-              final response = await _client.createPayment(request);
-              configMemoryHolder.payOrcPaymentResponse = response;
-              final paymentUrl =
-                  instance.configMemoryHolder.payOrcPaymentResponse?.iframeLink;
-              if (context.mounted) {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => PayOrcWebView(
-                          paymentUrl: paymentUrl!,
-                          onPopResult: onPopResult,
-                        )));
-              }
-            } on HttpException catch (e) {
-              errorResult.call(e.message);
-            } finally {
-              onLoadingResult.call(false);
+    
+    /// To create payment with widget
+    Future<void> createPaymentWithWidget(
+        {required BuildContext context,
+        required PayOrcPaymentRequest request,
+        required Function(bool loading) onLoadingResult,
+        required Function(String? message) errorResult,
+        required Function(String? pOrderId) onPopResult}) async {
+    try {
+        onLoadingResult.call(true);
+    
+          final merchantKey = await preferenceHelper.getMerchantKey();
+          final merchantSecret = await preferenceHelper.getMerchantSecret();
+    
+          final validate = await _client.validateMerchantKeys(PayOrcKeysRequest(
+              merchantKey: merchantKey,
+              merchantSecret: merchantSecret,
+              env: configMemoryHolder.environment));
+    
+          if (validate.status == PayOrcStatus.success) {
+            final response = await _client.createPayment(request);
+            configMemoryHolder.payOrcPaymentResponse = response;
+            final paymentUrl = configMemoryHolder.payOrcPaymentResponse?.iframeLink;
+            if (context.mounted) {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => PayOrcWebView(
+                        paymentUrl: paymentUrl!,
+                        onPopResult: onPopResult,
+                      )));
             }
+          } else {
+            errorResult.call(validate.message ?? "Merchant key / secret invalid");
+            return;
+          }
+        } on HttpException catch (e) {
+          errorResult.call(e.message);
+        } finally {
+          onLoadingResult.call(false);
         }
+    }
 
     **To call this method on app:**
 
@@ -230,17 +225,22 @@ Note :
       {required String orderId,
       required Function(String? message) errorResult}) async {
         try {
-          final merchantKey = await instance.preferenceHelper.getMerchantKey();
-          final merchantSecret =
-              await instance.preferenceHelper.getMerchantSecret();
+          final merchantKey = await preferenceHelper.getMerchantKey();
+          final merchantSecret = await preferenceHelper.getMerchantSecret();
     
-          if (merchantKey == null || merchantSecret == null) {
-            errorResult.call("Merchant key / secret invalid");
-            return;
+          final validate = await _client.validateMerchantKeys(PayOrcKeysRequest(
+              merchantKey: merchantKey,
+              merchantSecret: merchantSecret,
+              env: configMemoryHolder.environment));
+    
+          if (validate.status == PayOrcStatus.success) {
+            final response = await _client.fetchPaymentTransaction(orderId);
+            configMemoryHolder.payOrcPaymentTransactionResponse = response;
+            return response;
+          } else {
+            errorResult.call(validate.message ?? "Merchant key / secret invalid");
+            return null;
           }
-          final response = await _client.fetchPaymentTransaction(orderId);
-          configMemoryHolder.payOrcPaymentTransactionResponse = response;
-          return response;
         } on HttpException catch (e) {
           errorResult.call(e.message);
           return null;
