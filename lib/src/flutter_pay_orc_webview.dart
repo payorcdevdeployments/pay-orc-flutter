@@ -66,6 +66,7 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
   }
 
   bool _gotPaymentStatus = false;
+  String? orderId;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +77,7 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
         if (!_gotPaymentStatus && (canGoBack ?? false)) {
           webViewController?.goBack();
         } else {
-          widget.onPopResult?.call!(FlutterPayOrc.instance.orderId);
+          widget.onPopResult?.call!(FlutterPayOrc.instance.orderId ?? orderId);
         }
       },
       child: Stack(
@@ -188,14 +189,14 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
         handlerName: 'onPostMessage',
         callback: (args) async {
           if (args.isNotEmpty) {
-            setState(() {
-              _gotPaymentStatus = true;
-            });
-
             final data = Transaction.fromJson(
                 jsonDecode(args.first) as Map<String, dynamic>);
             debugPrint('onPostMessage : ${data.toJson()}');
-            FlutterPayOrc.instance.orderId = data.pOrderId;
+            setState(() {
+              FlutterPayOrc.instance.orderId = data.pOrderId;
+              orderId = data.pOrderId;
+              _gotPaymentStatus = true;
+            });
           }
         });
   }

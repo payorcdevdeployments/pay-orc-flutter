@@ -101,8 +101,13 @@ class FlutterPayOrc {
   }
 
   /// Clear preference data
-  void clearData() {
-    configMemoryHolder = ConfigMemoryHolder();
+  Future<void> clearData() async {
+    configMemoryHolder.userId = null;
+    configMemoryHolder.orderId = null;
+    configMemoryHolder.checkOutId = null;
+    configMemoryHolder.payOrcPaymentResponse = null;
+    configMemoryHolder.payOrcPaymentTransactionResponse = null;
+    configMemoryHolder.payOrcKeysValid = null;
   }
 
   /// To fetch payment transaction
@@ -155,6 +160,8 @@ class FlutterPayOrc {
       required Function(String? message) errorResult,
       required Function(String? pOrderId) onPopResult}) async {
     try {
+      await clearData();
+
       onLoadingResult.call(true);
       if (configMemoryHolder.payOrcKeysValid?.status == PayOrcStatus.success) {
         final response = await _client.createPayment(request);
