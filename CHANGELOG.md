@@ -30,3 +30,7 @@
 
 * Verify merchant key and secret before make the create order / fetch transaction APIs
 * Updated README
+
+## 0.0.8
+
+* Updated README
