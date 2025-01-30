@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_pay_orc/flutter_pay_orc.dart';
-import 'package:flutter_pay_orc/src/network/models/pay_orc_transaction.dart';
 
 class PayOrcWebView extends StatefulWidget {
   final String paymentUrl;
@@ -36,6 +35,8 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
       cacheMode: CacheMode.LOAD_NO_CACHE,
       mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
       iframeAllowFullscreen: true);
+
+  late BuildContext _buildContext;
 
   @override
   void initState() {
@@ -70,6 +71,8 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
 
   @override
   Widget build(BuildContext context) {
+    _buildContext = context;
+
     return PopScope(
       canPop: _gotPaymentStatus,
       onPopInvokedWithResult: (didPop, result) async {
@@ -192,10 +195,18 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
             final data = Transaction.fromJson(
                 jsonDecode(args.first) as Map<String, dynamic>);
             debugPrint('onPostMessage : ${data.toJson()}');
+
             setState(() {
               FlutterPayOrc.instance.orderId = data.pOrderId;
               orderId = data.pOrderId;
               _gotPaymentStatus = true;
+            });
+
+            // Close the screen after 5 seconds
+            Future.delayed(Duration(seconds: 5), () {
+              if (mounted) {
+                Navigator.of(_buildContext).pop(true);
+              }
             });
           }
         });

@@ -157,3 +157,7 @@ Note :
     **To call this method on app:**
     
     FlutterPayOrc.instance.clearData();
+
+## Step 6 : Important
+
+    **Update the version in pubspec.yaml file and also put the same in this constant variable PAY_ORC_SDK_VERSION (flutter_pay_orc/src/helper/constants.dart)**

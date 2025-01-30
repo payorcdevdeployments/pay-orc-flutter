@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_pay_orc/src/helper/api_paths.dart';
+import 'package:flutter_pay_orc/src/helper/constants.dart';
 import 'package:flutter_pay_orc/src/helper/preference_helper.dart';
 import 'package:flutter_pay_orc/src/network/models/pay_orc_error.dart';
 import 'package:flutter_pay_orc/src/network/models/pay_orc_keys_request.dart';
@@ -38,7 +40,6 @@ class FlutterPayOrcClient {
       error: kDebugMode,
       compact: kDebugMode,
     ));
-
     _registerInterceptor();
   }
 
@@ -53,8 +54,37 @@ class FlutterPayOrcClient {
             'merchant-key': merchantKey,
             'merchant-secret': merchantSecret,
           };
+
+          if (options.path.contains(ApiPaths.URL_CREATE_PAYMENT)) {
+            DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+            String brand = '';
+            String model = '';
+            String osVersion = '';
+
+            if (Platform.isAndroid) {
+              AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+              brand = androidInfo.brand;
+              model = androidInfo.model;
+              osVersion = androidInfo.version.release;
+            } else if (Platform.isIOS) {
+              IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+              brand = 'Apple';
+              model = iosInfo.utsname.machine; // Example: iPhone13,3
+              osVersion = iosInfo.systemVersion;
+            }
+
+            headers['sdk'] = 'flutter';
+            headers['sdk-version'] = PAY_ORC_SDK_VERSION;
+            headers['device-brand'] = brand;
+            headers['device-model'] = model;
+            headers['device-os-version'] = osVersion;
+          }
+
+          debugPrint('headers $headers');
+
           options.headers.addAll(headers);
         }
+
         handler.next(options);
       }, onResponse:
           (Response<dynamic> response, ResponseInterceptorHandler handler) {

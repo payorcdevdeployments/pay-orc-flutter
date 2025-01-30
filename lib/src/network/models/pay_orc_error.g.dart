@@ -9,7 +9,7 @@ part of 'pay_orc_error.dart';
 PayOrcError _$PayOrcErrorFromJson(Map<String, dynamic> json) => PayOrcError(
       message: json['message'] as String?,
       status: json['status'] as String?,
-      code: (json['code'] as num?)?.toInt(),
+      code: PayOrcError._fromJson(json['code']),
     );
 
 Map<String, dynamic> _$PayOrcErrorToJson(PayOrcError instance) =>

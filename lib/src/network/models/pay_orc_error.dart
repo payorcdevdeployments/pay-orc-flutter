@@ -6,7 +6,8 @@ part 'pay_orc_error.g.dart';
 class PayOrcError {
   final String? message;
   final String? status;
-  final int? code;
+  @JsonKey(fromJson: _fromJson)
+  final String? code;
 
   PayOrcError({
     this.message,
@@ -18,4 +19,7 @@ class PayOrcError {
       _$PayOrcErrorFromJson(json);
 
   Map<String, dynamic> toJson() => _$PayOrcErrorToJson(this);
+
+  static String _fromJson(dynamic json) =>
+      json is int ? '$json' : (json as String);
 }

@@ -34,3 +34,9 @@
 ## 0.0.8
 
 * Updated README
+
+## 0.0.9
+
+* Updated README
+* Updated API path change
+* Added automatic pop navigation handling after payment status
