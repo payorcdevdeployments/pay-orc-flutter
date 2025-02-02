@@ -51,7 +51,7 @@ Steps to follow:
             amount: "500",
             convenienceFee: "0",
             quantity: "1",
-            currency: "AED",
+            currency: "AED", // should be dynamic currency
             description: "",
           ),
           customerDetails: CustomerDetails(
@@ -59,29 +59,29 @@ Steps to follow:
             name: "John Doe",
             email: "johndoe@example.com",
             mobile: "987654321",
-            code: "971",
+            code: "971", // should not include + before code
           ),
           billingDetails: BillingDetails(
             addressLine1: "address 1",
             addressLine2: "address 2",
             city: "Amarpur",
-            province: "Bihar",
-            country: "IN",
+            province: "Bihar", // state
+            country: "IN", // should be 2 digit country code
             pin: "482008",
           ),
           shippingDetails: ShippingDetails(
             shippingName: "John Doe",
             shippingEmail: "",
-            shippingCode: "91",
+            shippingCode: "91", // should not include + before code
             shippingMobile: "9876543210",
             addressLine1: "address 1",
             addressLine2: "address 2",
             city: "Mumbai",
-            province: "Maharashtra",
-            country: "IN",
+            province: "Maharashtra", // state
+            country: "IN", // should be 2 digit country code
             pin: "482005",
             locationPin: "https://www.google.com/maps?q=24.227923067092433,80.07790793685352",
-            shippingCurrency: "AED",
+            shippingCurrency: "AED", // should be dynamic currency
             shippingAmount: "10",
           ),
           urls: Urls(

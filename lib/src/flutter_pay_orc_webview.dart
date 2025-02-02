@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_pay_orc/flutter_pay_orc.dart';
+import 'package:gif/gif.dart';
 
 class PayOrcWebView extends StatefulWidget {
   final String paymentUrl;
@@ -20,7 +21,8 @@ class PayOrcWebView extends StatefulWidget {
   State<PayOrcWebView> createState() => _PayOrcWebViewState();
 }
 
-class _PayOrcWebViewState extends State<PayOrcWebView> {
+class _PayOrcWebViewState extends State<PayOrcWebView>
+    with TickerProviderStateMixin {
   final GlobalKey webViewKey = GlobalKey();
   double progress = 0;
   bool isLoading = false;
@@ -133,10 +135,8 @@ class _PayOrcWebViewState extends State<PayOrcWebView> {
               ),
             ),
           if (isLoading)
-            const Center(
-              child: CircularProgressIndicator(
-                color: Colors.purple,
-              ),
+            Center(
+              child: Gif(image: AssetImage('loader.gif')),
             ),
           if (_gotPaymentStatus)
             Positioned(
