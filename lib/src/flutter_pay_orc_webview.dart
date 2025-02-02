@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_pay_orc/flutter_pay_orc.dart';
-import 'package:gif/gif.dart';
 
 class PayOrcWebView extends StatefulWidget {
   final String paymentUrl;
@@ -51,8 +50,8 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
       final availableVersion = await WebViewEnvironment.getAvailableVersion();
       assert(
-      availableVersion != null,
-      'Failed to find an installed WebView2 runtime or non-stable Microsoft Edge installation.',
+        availableVersion != null,
+        'Failed to find an installed WebView2 runtime or non-stable Microsoft Edge installation.',
       );
       webViewEnvironment = await WebViewEnvironment.create(
         settings: WebViewEnvironmentSettings(
@@ -98,7 +97,7 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
                 key: webViewKey,
                 webViewEnvironment: webViewEnvironment,
                 initialUrlRequest:
-                URLRequest(url: WebUri.uri(Uri.parse(widget.paymentUrl))),
+                    URLRequest(url: WebUri.uri(Uri.parse(widget.paymentUrl))),
                 initialUserScripts: UnmodifiableListView<UserScript>([]),
                 initialSettings: settings,
                 onWebViewCreated: (controller) async {
@@ -139,7 +138,8 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
               child: SizedBox(
                   height: 72,
                   width: 72,
-                  child: Image.asset('assets/loader.gif')),
+                  child: Image.asset(
+                      'packages/flutter_pay_orc/assets/loader.gif')),
             ),
           if (_gotPaymentStatus)
             Positioned(

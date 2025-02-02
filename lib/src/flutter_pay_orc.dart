@@ -156,23 +156,30 @@ class FlutterPayOrc {
   Future<void> createPaymentWithWidget(
       {required BuildContext context,
       required PayOrcPaymentRequest request,
-      required Function(bool loading) onLoadingResult,
       required Function(String? message) errorResult,
       required Function(String? pOrderId) onPopResult}) async {
     try {
       await clearData();
-
-      onLoadingResult.call(true);
+      if (context.mounted) {
+        _showProgressDialog(context);
+      }
       if (configMemoryHolder.payOrcKeysValid?.status == PayOrcStatus.success) {
         final response = await _client.createPayment(request);
         configMemoryHolder.payOrcPaymentResponse = response;
         final paymentUrl = configMemoryHolder.payOrcPaymentResponse?.iframeLink;
         if (context.mounted) {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => PayOrcWebView(
-                    paymentUrl: paymentUrl!,
-                    onPopResult: onPopResult,
-                  )));
+          _hideProgressDialog(context);
+          // Add a slight delay before pushing the new page
+          Future.delayed(Duration(milliseconds: 200), () {
+            if (context.mounted) {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => PayOrcWebView(
+                  paymentUrl: paymentUrl!,
+                  onPopResult: onPopResult,
+                ),
+              ));
+            }
+          });
         }
       } else {
         final merchantKey = await preferenceHelper.getMerchantKey();
@@ -189,13 +196,24 @@ class FlutterPayOrc {
           final paymentUrl =
               configMemoryHolder.payOrcPaymentResponse?.iframeLink;
           if (context.mounted) {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => PayOrcWebView(
-                      paymentUrl: paymentUrl!,
-                      onPopResult: onPopResult,
-                    )));
+            _hideProgressDialog(context);
+
+            // Add a slight delay before pushing the new page
+            Future.delayed(Duration(milliseconds: 200), () {
+              if (context.mounted) {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => PayOrcWebView(
+                    paymentUrl: paymentUrl!,
+                    onPopResult: onPopResult,
+                  ),
+                ));
+              }
+            });
           }
         } else {
+          if (context.mounted) {
+            _hideProgressDialog(context);
+          }
           configMemoryHolder.payOrcKeysValid = null;
           errorResult.call(validate.message ?? "Merchant key / secret invalid");
           return;
@@ -205,9 +223,39 @@ class FlutterPayOrc {
       if (e.uri?.path.contains(ApiPaths.URL_CHECK_KEYS) == true) {
         configMemoryHolder.payOrcKeysValid = null;
       }
+      if (context.mounted) {
+        _hideProgressDialog(context);
+      }
       errorResult.call(e.message);
     } finally {
-      onLoadingResult.call(false);
+      if (context.mounted) {
+        _hideProgressDialog(context);
+      }
     }
+  }
+
+  void _showProgressDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevents dialog from closing on tap
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: Center(
+            child: SizedBox(
+                height: 72,
+                width: 72,
+                child:
+                    Image.asset('packages/flutter_pay_orc/assets/loader.gif')),
+          ),
+        );
+      },
+    );
+  }
+
+  void _hideProgressDialog(BuildContext context) {
+    Navigator.of(context).pop(); // Close the dialog
   }
 }

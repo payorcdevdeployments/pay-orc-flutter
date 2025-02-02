@@ -29,13 +29,10 @@ Steps to follow:
         context: context,
         request: createPayOrcPaymentRequest(),
         onPopResult: (String? pOrderId) async {
-          await _fetchTransaction(pOrderId);
+            await _fetchTransaction(pOrderId);
         },
         errorResult: (message) {
-          // display alert for the users
-        },
-        onLoadingResult: (bool success) {
-          // manage loading with this bool value
+            // display alert for the users
         });
 
 ## Step 3 : payment request object reference.
@@ -160,4 +157,5 @@ Note :
 
 ## Step 6 : Important
 
-    **Update the version in pubspec.yaml file and also put the same in this constant variable PAY_ORC_SDK_VERSION (flutter_pay_orc/src/helper/constants.dart)**
+    **Update the version in pubspec.yaml file and also put the same in this constant variable
+    PAY_ORC_SDK_VERSION (flutter_pay_orc/src/helper/constants.dart)**

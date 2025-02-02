@@ -40,3 +40,8 @@
 * Updated README
 * Updated API path change
 * Added automatic pop navigation handling after payment status
+
+## 1.0.0
+
+* Updated README
+* Updated loader
