@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
@@ -149,21 +150,80 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
                 width: 48, // Width of the rounded container
                 height: 48, // Height of the rounded container
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withOpacity(0.25),
                   shape: BoxShape.circle, // Rounded shape
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.close),
-                  color: Colors.black.withOpacity(0.6),
+                  color: Colors.white,
                   onPressed: () {
                     Navigator.of(context).pop(true);
                   },
                 ),
               ),
             ),
+          if (_gotPaymentStatus)
+            Positioned(
+              left: 32,
+              top: 32,
+              child: Container(
+                alignment: Alignment.center,
+                width: 48,
+                // Width of the rounded container
+                height: 48,
+                // Height of the rounded container
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.25),
+                  shape: BoxShape.circle, // Rounded shape
+                ),
+                child: Center(
+                  child: Text(
+                    _seconds.toString().padLeft(2, '0'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  int _seconds = 10; // Start from 10
+  Timer? _timer;
+
+  void startCountdown() {
+    _timer?.cancel(); // Cancel any existing timer
+    setState(() {
+      _seconds = 10; // Reset counter
+    });
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_seconds > 1) {
+        setState(() {
+          _seconds--;
+        });
+      } else {
+        timer.cancel(); // Stop the timer at 1
+        setState(() {
+          _seconds = 0; // Ensure it shows 00 at the end
+        });
+
+        if (mounted) {
+          Navigator.of(_buildContext).pop(true);
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Clean up the timer when widget is removed
+    super.dispose();
   }
 
   Future<void> _getPostData(BuildContext context) async {
@@ -206,10 +266,8 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
             });
 
             // Close the screen after 5 seconds
-            Future.delayed(Duration(seconds: 5), () {
-              if (mounted) {
-                Navigator.of(_buildContext).pop(true);
-              }
+            Future.delayed(Duration(seconds: 2), () {
+              startCountdown();
             });
           }
         });

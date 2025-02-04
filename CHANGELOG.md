@@ -45,3 +45,7 @@
 
 * Updated README
 * Updated loader
+
+## 1.0.1
+
+* Added 10 seconds timer in status page
