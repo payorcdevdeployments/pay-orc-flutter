@@ -245,8 +245,8 @@ class FlutterPayOrc {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Center(
             child: SizedBox(
-                height: 72,
-                width: 72,
+                height: 56,
+                width: 56,
                 child:
                     Image.asset('packages/flutter_pay_orc/assets/loader.gif')),
           ),

@@ -137,8 +137,8 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
           if (isLoading)
             Center(
               child: SizedBox(
-                  height: 72,
-                  width: 72,
+                  height: 56,
+                  width: 56,
                   child: Image.asset(
                       'packages/flutter_pay_orc/assets/loader.gif')),
             ),
@@ -164,26 +164,56 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
             ),
           if (_gotPaymentStatus)
             Positioned(
-              left: 32,
-              top: 32,
+              bottom: 0,
+              left: 0,
+              right: 0,
               child: Container(
                 alignment: Alignment.center,
-                width: 48,
-                // Width of the rounded container
-                height: 48,
-                // Height of the rounded container
+                width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.25),
-                  shape: BoxShape.circle, // Rounded shape
+                  shape: BoxShape.rectangle, // Rounded shape
                 ),
-                child: Center(
-                  child: Text(
-                    _seconds.toString().padLeft(2, '0'),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.normal,
-                        color: Colors.white),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'You will be redirected to the Merchant site in ${_seconds.toString()} seconds.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 16,
+                            decoration: TextDecoration.none,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.white),
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(true);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF398378),
+                            // Background color #398378
+                            padding: EdgeInsets.symmetric(horizontal: 24),
+                            // Padding of 24
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  20), // Corner radius of 20
+                            ),
+                          ),
+                          child: Text(
+                            'Redirect Now',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Colors.white),
+                          ))
+                    ],
                   ),
                 ),
               ),
@@ -193,13 +223,13 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
     );
   }
 
-  int _seconds = 10; // Start from 10
+  int _seconds = 5; // Start from 10
   Timer? _timer;
 
   void startCountdown() {
     _timer?.cancel(); // Cancel any existing timer
     setState(() {
-      _seconds = 10; // Reset counter
+      _seconds = 5; // Reset counter
     });
 
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {

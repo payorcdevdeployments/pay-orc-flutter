@@ -49,3 +49,8 @@
 ## 1.0.1
 
 * Added 10 seconds timer in status page
+
+## 1.0.2
+
+* Added 5 seconds timer in status page
+* Added redirect now button in status page
