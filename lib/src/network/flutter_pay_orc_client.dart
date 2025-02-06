@@ -25,12 +25,12 @@ class FlutterPayOrcClient {
   FlutterPayOrcClient(
       {required String paymentBaseUrl, required this.preferenceHelper})
       : _dio = Dio(BaseOptions(
-            baseUrl: paymentBaseUrl,
-            connectTimeout: const Duration(seconds: 60),
-            receiveTimeout: const Duration(seconds: 60),
-            headers: {
-              'Content-Type': 'application/json',
-            })) {
+      baseUrl: paymentBaseUrl,
+      connectTimeout: const Duration(seconds: 60),
+      receiveTimeout: const Duration(seconds: 60),
+      headers: {
+        'Content-Type': 'application/json',
+      })) {
     // Add logging interceptor
     _dio.interceptors.add(PrettyDioLogger(
       requestHeader: kDebugMode,
@@ -46,45 +46,6 @@ class FlutterPayOrcClient {
   void _registerInterceptor() {
     _dio.interceptors.add(
       InterceptorsWrapper(onRequest: (options, handler) async {
-        final merchantKey = await preferenceHelper.getMerchantKey();
-        final merchantSecret = await preferenceHelper.getMerchantSecret();
-
-        if (merchantKey != null && merchantSecret != null) {
-          final Map<String, String> headers = <String, String>{
-            'merchant-key': merchantKey,
-            'merchant-secret': merchantSecret,
-          };
-
-          if (options.path.contains(ApiPaths.URL_CREATE_PAYMENT)) {
-            DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-            String brand = '';
-            String model = '';
-            String osVersion = '';
-
-            if (Platform.isAndroid) {
-              AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-              brand = androidInfo.brand;
-              model = androidInfo.model;
-              osVersion = androidInfo.version.release;
-            } else if (Platform.isIOS) {
-              IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-              brand = 'Apple';
-              model = iosInfo.utsname.machine; // Example: iPhone13,3
-              osVersion = iosInfo.systemVersion;
-            }
-
-            headers['sdk'] = 'flutter';
-            headers['sdk-version'] = PAY_ORC_SDK_VERSION;
-            headers['device-brand'] = brand;
-            headers['device-model'] = model;
-            headers['device-os-version'] = osVersion;
-          }
-
-          debugPrint('headers $headers');
-
-          options.headers.addAll(headers);
-        }
-
         handler.next(options);
       }, onResponse:
           (Response<dynamic> response, ResponseInterceptorHandler handler) {
@@ -127,10 +88,46 @@ class FlutterPayOrcClient {
   Future<PayOrcPaymentResponse> createPayment(
       PayOrcPaymentRequest request) async {
     try {
+      final Map<String, String> headers = <String, String>{};
+
+      final merchantKey = await preferenceHelper.getMerchantKey();
+      final merchantSecret = await preferenceHelper.getMerchantSecret();
+
+      if (merchantKey != null && merchantSecret != null) {
+        headers['merchant-key'] = merchantKey;
+        headers['merchant-secret'] = merchantSecret;
+
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        String brand = '';
+        String model = '';
+        String osVersion = '';
+
+        if (Platform.isAndroid) {
+          AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+          brand = androidInfo.brand;
+          model = androidInfo.model;
+          osVersion = androidInfo.version.release;
+        } else if (Platform.isIOS) {
+          IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+          brand = 'Apple';
+          model = iosInfo.utsname.machine; // Example: iPhone13,3
+          osVersion = iosInfo.systemVersion;
+        }
+
+        headers['sdk'] = 'flutter';
+        headers['sdk-version'] = PAY_ORC_SDK_VERSION;
+        headers['device-brand'] = brand;
+        headers['device-model'] = model;
+        headers['device-os-version'] = osVersion;
+      }
+
       Map requestData = request.toJson();
       final response = await _dio.post(
-        ApiPaths.URL_CREATE_PAYMENT,
-        data: jsonEncode(requestData),
+          ApiPaths.URL_CREATE_PAYMENT,
+          data: jsonEncode(requestData),
+          options: Options(
+              headers: headers
+          )
       );
       if (response.statusCode == 200) {
         return PayOrcPaymentResponse.fromJson(response.data);
@@ -155,9 +152,19 @@ class FlutterPayOrcClient {
   Future<PayOrcPaymentTransactionResponse> fetchPaymentTransaction(
       String orderId) async {
     try {
+      final Map<String, String> headers = <String, String>{};
+
+      final merchantKey = await preferenceHelper.getMerchantKey();
+      final merchantSecret = await preferenceHelper.getMerchantSecret();
+
+      if (merchantKey != null && merchantSecret != null) {
+        headers['merchant-key'] = merchantKey;
+        headers['merchant-secret'] = merchantSecret;
+      }
       final response = await _dio.get(
-        ApiPaths.URL_PAYMENT_TRANSACTION,
-        queryParameters: {'p_order_id': orderId},
+          ApiPaths.URL_PAYMENT_TRANSACTION,
+          queryParameters: {'p_order_id': orderId},
+          options: Options(headers: headers)
       );
       if (response.statusCode == 200) {
         return PayOrcPaymentTransactionResponse.fromJson(response.data);

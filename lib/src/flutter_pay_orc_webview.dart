@@ -92,46 +92,50 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
               child: Text("Invalid payment URL."),
             )
           else
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: InAppWebView(
-                key: webViewKey,
-                webViewEnvironment: webViewEnvironment,
-                initialUrlRequest:
-                    URLRequest(url: WebUri.uri(Uri.parse(widget.paymentUrl))),
-                initialUserScripts: UnmodifiableListView<UserScript>([]),
-                initialSettings: settings,
-                onWebViewCreated: (controller) async {
-                  webViewController = controller;
-                },
-                onLoadStart: (controller, url) {
-                  setState(() {
-                    isLoading = true; // Show loader when loading starts
-                  });
-                },
-                shouldOverrideUrlLoading: (controller, navigationAction) async {
-                  return NavigationActionPolicy.ALLOW;
-                },
-                onLoadStop: (controller, url) async {
-                  setState(() {
-                    isLoading = false; // Hide loader when loading stops
-                  });
-                  await _getPostData(context);
-                },
-                onReceivedError: (controller, request, error) {
-                  debugPrint(error.description);
-                },
-                onProgressChanged: (controller, progress) {},
-                onUpdateVisitedHistory: (controller, url, isReload) {},
-                onConsoleMessage: (controller, consoleMessage) {
-                  debugPrint(consoleMessage
-                      .message); // To capture JavaScript console logs
-                },
-                onReceivedServerTrustAuthRequest:
-                    (controller, challenge) async {
-                  return ServerTrustAuthResponse(
-                      action: ServerTrustAuthResponseAction.PROCEED);
-                },
+            Container(
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: InAppWebView(
+                  key: webViewKey,
+                  webViewEnvironment: webViewEnvironment,
+                  initialUrlRequest:
+                      URLRequest(url: WebUri.uri(Uri.parse(widget.paymentUrl))),
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialSettings: settings,
+                  onWebViewCreated: (controller) async {
+                    webViewController = controller;
+                  },
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      isLoading = true; // Show loader when loading starts
+                    });
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    setState(() {
+                      isLoading = false; // Hide loader when loading stops
+                    });
+                    await _getPostData(context);
+                  },
+                  onReceivedError: (controller, request, error) {
+                    debugPrint(error.description);
+                  },
+                  onProgressChanged: (controller, progress) {},
+                  onUpdateVisitedHistory: (controller, url, isReload) {},
+                  onConsoleMessage: (controller, consoleMessage) {
+                    debugPrint(consoleMessage
+                        .message); // To capture JavaScript console logs
+                  },
+                  onReceivedServerTrustAuthRequest:
+                      (controller, challenge) async {
+                    return ServerTrustAuthResponse(
+                        action: ServerTrustAuthResponseAction.PROCEED);
+                  },
+                ),
               ),
             ),
           if (isLoading)
@@ -167,53 +171,48 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
               bottom: 0,
               left: 0,
               right: 0,
-              child: Container(
-                alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.25),
-                  shape: BoxShape.rectangle, // Rounded shape
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'You will be redirected to the Merchant site in ${_seconds.toString()} seconds.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 16,
-                            decoration: TextDecoration.none,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.white),
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(true);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF398378),
-                            // Background color #398378
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            // Padding of 24
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  20), // Corner radius of 20
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  alignment: Alignment.center,
+                  color: Colors.transparent,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'You will be redirected to the Merchant site in ${_seconds.toString()} seconds.',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'sans-serif',
+                              decoration: TextDecoration.none,
+                              fontWeight: FontWeight.normal,
+                              color: Colors.black),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Material(
+                          child: InkWell(
+                            onTap: () => Navigator.of(context).pop(true),
+                            child: Text(
+                              'Redirect Now',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: 'sans-serif',
+                                  fontWeight: FontWeight.normal,
+                                  decoration: TextDecoration.underline,
+                                  color: Colors.black),
                             ),
                           ),
-                          child: Text(
-                            'Redirect Now',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontWeight: FontWeight.normal,
-                                color: Colors.white),
-                          ))
-                    ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
