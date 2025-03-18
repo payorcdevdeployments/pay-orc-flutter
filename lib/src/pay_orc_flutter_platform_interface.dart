@@ -1,6 +1,6 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'flutter_pay_orc_method_channel.dart';
+import 'pay_orc_flutter_method_channel.dart';
 
 abstract class FlutterPayOrcPlatform extends PlatformInterface {
   /// Constructs a FlutterPayOrcPlatform.

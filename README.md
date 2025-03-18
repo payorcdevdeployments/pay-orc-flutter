@@ -1,4 +1,4 @@
-# flutter_pay_orc
+# pay_orc_flutter
 
 A Flutter plugin for orc payment.
 
@@ -158,4 +158,4 @@ Note :
 ## Step 6 : Important
 
     **Update the version in pubspec.yaml file and also put the same in this constant variable
-    PAY_ORC_SDK_VERSION (flutter_pay_orc/src/helper/constants.dart)**
+    PAY_ORC_SDK_VERSION (pay_orc_flutter/src/helper/constants.dart)**

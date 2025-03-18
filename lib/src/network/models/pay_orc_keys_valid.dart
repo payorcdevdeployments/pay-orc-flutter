@@ -1,4 +1,4 @@
-import 'package:flutter_pay_orc/src/network/enum/pay.orc.status.dart';
+import 'package:pay_orc_flutter/src/network/enum/pay.orc.status.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'pay_orc_keys_valid.g.dart';

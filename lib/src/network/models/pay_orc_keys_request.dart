@@ -1,4 +1,4 @@
-import 'package:flutter_pay_orc/src/helper/flutter_pay_orc_environment.dart';
+import 'package:pay_orc_flutter/src/helper/pay_orc_flutter_environment.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'pay_orc_keys_request.g.dart';

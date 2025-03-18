@@ -4,12 +4,12 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_pay_orc/src/helper/api_paths.dart';
-import 'package:flutter_pay_orc/src/helper/constants.dart';
-import 'package:flutter_pay_orc/src/helper/preference_helper.dart';
-import 'package:flutter_pay_orc/src/network/models/pay_orc_error.dart';
-import 'package:flutter_pay_orc/src/network/models/pay_orc_keys_request.dart';
-import 'package:flutter_pay_orc/src/network/models/pay_orc_keys_valid.dart';
+import 'package:pay_orc_flutter/src/helper/api_paths.dart';
+import 'package:pay_orc_flutter/src/helper/constants.dart';
+import 'package:pay_orc_flutter/src/helper/preference_helper.dart';
+import 'package:pay_orc_flutter/src/network/models/pay_orc_error.dart';
+import 'package:pay_orc_flutter/src/network/models/pay_orc_keys_request.dart';
+import 'package:pay_orc_flutter/src/network/models/pay_orc_keys_valid.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import 'models/pay_orc_payment_request.dart';
