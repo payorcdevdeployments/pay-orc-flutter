@@ -1,6 +1,6 @@
-name: flutter_pay_orc
+name: pay_orc_flutter
 description: "Flutter plugin for orc payment."
-version: 1.0.4
+version: 0.0.1
 homepage: https://payorc.com/
 
 environment:
