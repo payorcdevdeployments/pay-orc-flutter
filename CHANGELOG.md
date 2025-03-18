@@ -58,3 +58,7 @@
 ## 1.0.3
 
 * Updated redirect now
+
+## 1.0.4
+
+* Minor changes
