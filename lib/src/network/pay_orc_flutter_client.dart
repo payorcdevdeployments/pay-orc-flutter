@@ -16,13 +16,13 @@ import 'models/pay_orc_payment_request.dart';
 import 'models/pay_orc_payment_response.dart';
 import 'models/pay_orc_payment_transaction_response.dart';
 
-class FlutterPayOrcClient {
+class PayOrcFlutterClient {
   final Dio _dio;
 
   final PreferencesHelper preferenceHelper;
 
   /// Dio client initialisation
-  FlutterPayOrcClient(
+  PayOrcFlutterClient(
       {required String paymentBaseUrl, required this.preferenceHelper})
       : _dio = Dio(BaseOptions(
       baseUrl: paymentBaseUrl,

@@ -13,7 +13,7 @@ Steps to follow:
 ## Step 1 : In your app, specify the environment during initialization.
 
     void main() {        
-        FlutterPayOrc.initialize(
+        PayOrcFlutter.initialize(
             merchantKey: 'your-merchant-key', // updated you merchantKey.
             merchantSecret: 'your-merchant-secret', // updated your merchantSecret.
             environment: Environment.test, // Switch to Environment.production for live
@@ -25,7 +25,7 @@ Steps to follow:
 
     **To call this method on app:**
 
-    await FlutterPayOrc.instance.createPaymentWithWidget(
+    await PayOrcFlutter.instance.createPaymentWithWidget(
         context: context,
         request: createPayOrcPaymentRequest(),
         onPopResult: (String? pOrderId) async {
@@ -134,7 +134,7 @@ Note :
 
     **To call this method on app:**
 
-    final transaction = await FlutterPayOrc.instance.fetchPaymentTransaction(
+    final transaction = await PayOrcFlutter.instance.fetchPaymentTransaction(
       orderId: pOrderId.toString(),
       onLoadingResult: (loading) {
           // manage loading with this bool value
@@ -146,14 +146,14 @@ Note :
     if (transaction != null) {
       // update transaction information to merchant server
 
-      FlutterPayOrc.instance.clearData();
+      PayOrcFlutter.instance.clearData();
     }
 
 ## Step 5 : To clear local data call following method.
 
     **To call this method on app:**
     
-    FlutterPayOrc.instance.clearData();
+    PayOrcFlutter.instance.clearData();
 
 ## Step 6 : Important
 

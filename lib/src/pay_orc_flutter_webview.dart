@@ -82,7 +82,7 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
         if (!_gotPaymentStatus && (canGoBack ?? false)) {
           webViewController?.goBack();
         } else {
-          widget.onPopResult?.call!(FlutterPayOrc.instance.orderId ?? orderId);
+          widget.onPopResult?.call!(PayOrcFlutter.instance.orderId ?? orderId);
         }
       },
       child: Stack(
@@ -289,7 +289,7 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
             debugPrint('onPostMessage : ${data.toJson()}');
 
             setState(() {
-              FlutterPayOrc.instance.orderId = data.pOrderId;
+              PayOrcFlutter.instance.orderId = data.pOrderId;
               orderId = data.pOrderId;
               _gotPaymentStatus = true;
             });

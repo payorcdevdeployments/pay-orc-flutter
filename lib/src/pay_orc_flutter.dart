@@ -17,16 +17,16 @@ import 'helper/config_memory_holder.dart';
 import 'helper/preference_helper.dart';
 import 'network/pay_orc_flutter_client.dart';
 
-class FlutterPayOrc {
+class PayOrcFlutter {
   final PreferencesHelper preferenceHelper;
   ConfigMemoryHolder configMemoryHolder = ConfigMemoryHolder();
-  late final FlutterPayOrcClient _client;
+  late final PayOrcFlutterClient _client;
 
   Future<String?> getPlatformVersion() {
-    return FlutterPayOrcPlatform.instance.getPlatformVersion();
+    return PayOrcFlutterPlatform.instance.getPlatformVersion();
   }
 
-  FlutterPayOrc._(
+  PayOrcFlutter._(
       {required this.preferenceHelper, required Environment environment}) {
     configMemoryHolder.environment = environment;
     // Define a map for environment types and their corresponding URLs
@@ -36,15 +36,15 @@ class FlutterPayOrc {
     };
     // Assign the URL or fallback to an empty string
     configMemoryHolder.baseUrl = envUrls[environment] ?? "";
-    _client = FlutterPayOrcClient(
+    _client = PayOrcFlutterClient(
         paymentBaseUrl: configMemoryHolder.baseUrl!,
         preferenceHelper: preferenceHelper);
   }
 
-  static FlutterPayOrc? _instance;
+  static PayOrcFlutter? _instance;
 
   /// Factory constructor for asynchronous initialization
-  static Future<FlutterPayOrc> initialize({
+  static Future<PayOrcFlutter> initialize({
     required Environment environment,
     required String merchantKey,
     required String merchantSecret,
@@ -53,7 +53,7 @@ class FlutterPayOrc {
     final preferenceHelper = PreferencesHelper(preferences);
     await preferenceHelper.saveMerchantKey(merchantKey);
     await preferenceHelper.saveMerchantSecret(merchantSecret);
-    _instance = FlutterPayOrc._(
+    _instance = PayOrcFlutter._(
       preferenceHelper: preferenceHelper,
       environment: environment,
     );
@@ -61,10 +61,10 @@ class FlutterPayOrc {
   }
 
   /// Retrieve the singleton instance
-  static FlutterPayOrc get instance {
+  static PayOrcFlutter get instance {
     if (_instance == null) {
       throw Exception(
-          'FlutterPayOrc is not initialized. Call initialize() first.');
+          'PayOrcFlutter is not initialized. Call initialize() first.');
     }
     return _instance!;
   }

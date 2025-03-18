@@ -2,23 +2,23 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'pay_orc_flutter_method_channel.dart';
 
-abstract class FlutterPayOrcPlatform extends PlatformInterface {
-  /// Constructs a FlutterPayOrcPlatform.
-  FlutterPayOrcPlatform() : super(token: _token);
+abstract class PayOrcFlutterPlatform extends PlatformInterface {
+  /// Constructs a PayOrcFlutterPlatform.
+  PayOrcFlutterPlatform() : super(token: _token);
 
   static final Object _token = Object();
 
-  static FlutterPayOrcPlatform _instance = MethodChannelFlutterPayOrc();
+  static PayOrcFlutterPlatform _instance = MethodChannelPayOrcFlutter();
 
-  /// The default instance of [FlutterPayOrcPlatform] to use.
+  /// The default instance of [PayOrcFlutterPlatform] to use.
   ///
-  /// Defaults to [MethodChannelFlutterPayOrc].
-  static FlutterPayOrcPlatform get instance => _instance;
+  /// Defaults to [MethodChannelPayOrcFlutter].
+  static PayOrcFlutterPlatform get instance => _instance;
 
   /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [FlutterPayOrcPlatform] when
+  /// platform-specific class that extends [PayOrcFlutterPlatform] when
   /// they register themselves.
-  static set instance(FlutterPayOrcPlatform instance) {
+  static set instance(PayOrcFlutterPlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
