@@ -1,4 +1,4 @@
-import 'package:pay_orc_flutter/pay_orc_flutter.dart';
+import 'package:payorc_flutter/payorc_flutter.dart';
 
 class ConfigMemoryHolder {
   /// The user ID.

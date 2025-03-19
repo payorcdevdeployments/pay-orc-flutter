@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:pay_orc_flutter/pay_orc_flutter.dart';
+import 'package:payorc_flutter/payorc_flutter.dart';
 
 class PayOrcWebView extends StatefulWidget {
   final String paymentUrl;
@@ -144,7 +144,7 @@ class _PayOrcWebViewState extends State<PayOrcWebView>
                   height: 56,
                   width: 56,
                   child: Image.asset(
-                      'packages/pay_orc_flutter/assets/loader.gif')),
+                      'packages/payorc_flutter/assets/loader.gif')),
             ),
           if (_gotPaymentStatus)
             Positioned(

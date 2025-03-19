@@ -1,9 +1,9 @@
 library;
 
 // Export flutter pay orc web view
-export 'src/pay_orc_flutter.dart';
-export 'src/pay_orc_flutter_webview.dart';
-export 'src/helper/pay_orc_flutter_environment.dart';
+export 'src/payorc_flutter.dart';
+export 'src/payorc_flutter_webview.dart';
+export 'src/helper/payorc_flutter_environment.dart';
 export 'src/network/enum/pay.orc.action.dart';
 export 'src/network/enum/pay.orc.capture_method.dart';
 export 'src/network/enum/pay.orc.class.dart';

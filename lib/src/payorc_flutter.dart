@@ -8,14 +8,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:pay_orc_flutter/pay_orc_flutter.dart';
-import 'package:pay_orc_flutter/src/helper/api_paths.dart';
+import 'package:payorc_flutter/payorc_flutter.dart';
+import 'package:payorc_flutter/src/helper/api_paths.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'pay_orc_flutter_platform_interface.dart';
+import 'payorc_flutter_platform_interface.dart';
 import 'helper/config_memory_holder.dart';
 import 'helper/preference_helper.dart';
-import 'network/pay_orc_flutter_client.dart';
+import 'network/payorc_flutter_client.dart';
 
 class PayOrcFlutter {
   final PreferencesHelper preferenceHelper;
@@ -248,7 +248,7 @@ class PayOrcFlutter {
                 height: 56,
                 width: 56,
                 child:
-                    Image.asset('packages/pay_orc_flutter/assets/loader.gif')),
+                    Image.asset('packages/payorc_flutter/assets/loader.gif')),
           ),
         );
       },
