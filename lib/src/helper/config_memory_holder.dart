@@ -1,4 +1,4 @@
-import 'package:payorc_flutter/payorc_flutter.dart';
+import 'package:payorc/payorc.dart';
 
 class ConfigMemoryHolder {
   /// The user ID.

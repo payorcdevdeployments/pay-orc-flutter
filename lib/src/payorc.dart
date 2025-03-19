@@ -8,8 +8,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:payorc_flutter/payorc_flutter.dart';
-import 'package:payorc_flutter/src/helper/api_paths.dart';
+import 'package:payorc/payorc.dart';
+import 'package:payorc/src/helper/api_paths.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'payorc_flutter_platform_interface.dart';
